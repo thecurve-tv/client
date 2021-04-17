@@ -1,0 +1,18 @@
+#main {
+  width: 100%;
+  flex-grow: 1;
+  margin: 5vh 5%;
+}
+
+.input {
+  width: fit-content;
+}
+
+.grid {
+  display: grid;
+  width: 18.75rem;
+  height: 18.75rem;
+  grid-template-columns: repeat(30, 0.625rem);
+  grid-auto-rows: 0.625rem;
+  transform: rotate(90deg);
+}
