@@ -145,5 +145,8 @@
       }
     }
   },
-  "defaultProject": "thecurve"
+  "defaultProject": "thecurve",
+  "cli": {
+    "analytics": "cefdee73-fbbc-4ed9-adb3-cd3867ab9917"
+  }
 }
