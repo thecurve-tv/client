@@ -19,15 +19,15 @@
     "@angular/platform-browser": "~11.0.6",
     "@angular/platform-browser-dynamic": "~11.0.6",
     "@angular/router": "~11.0.6",
+    "@apollo/client": "^3.0.0",
     "@auth0/auth0-angular": "^1.4.1",
     "apollo-angular": "^2.4.0",
     "bson": "^4.3.0",
+    "graphql": "^15.0.0",
     "realm-web": "^1.2.1",
     "rxjs": "~6.6.0",
     "tslib": "^2.0.0",
-    "zone.js": "~0.10.2",
-    "@apollo/client": "^3.0.0",
-    "graphql": "^15.0.0"
+    "zone.js": "~0.10.2"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "~0.1100.6",

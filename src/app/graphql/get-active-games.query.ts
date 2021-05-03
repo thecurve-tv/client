@@ -1,9 +1,9 @@
-import { Apollo } from 'apollo-angular';
+import { Apollo } from 'apollo-angular'
+import { ObjectId } from 'bson'
 import gql from 'graphql-tag'
-import { Game } from 'src/app/models/game'
 
 const GetActiveGamesQuery = gql`
-query GetActiveGames ($accountId: MongoID, $now: Float) {
+query GetActiveGames ($accountId: MongoID!, $now: Float!) {
   gameMany(filter: {
     hostAccount: $accountId,
     _operators: {endTime: {gt: $now}}
@@ -13,19 +13,20 @@ query GetActiveGames ($accountId: MongoID, $now: Float) {
 }
 `
 export interface GetActiveGamesQueryVariables {
-  accountId: Game['_id']
+  accountId: ObjectId
   now: number
 }
 export interface GetActiveGamesQueryResult {
   gameMany: {
-    _id: Game['_id']
+    _id: ObjectId
   }[]
 }
 export function getActiveGames(apollo: Apollo, variables: GetActiveGamesQueryVariables) {
   return apollo
     .watchQuery<GetActiveGamesQueryResult, GetActiveGamesQueryVariables>({
       query: GetActiveGamesQuery,
-      variables
+      variables,
+      errorPolicy: 'all'
     })
     .valueChanges
 }
