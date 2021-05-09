@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '@auth0/auth0-angular';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-login-button',
@@ -15,7 +16,9 @@ export class LoginButtonComponent implements OnInit {
 
   loginWithRedirect(): void {
     //TODO disallow signup with duplicate email address
-    console.log('LoginButtonComponent: Redirecting to Auth0 login...')
-    this.authService.loginWithRedirect();
+    this.authService.loginWithRedirect({
+      redirect_uri: environment.AUTH0_REDIRECT_URI,
+      appState: { target: '/dashboard' }
+    });
   }
 }

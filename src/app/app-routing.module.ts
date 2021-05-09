@@ -1,47 +1,59 @@
-import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
-import { AuthGuard } from '@auth0/auth0-angular';
-import { BioComponent } from 'src/app/components/bio/bio.component';
-import { ChatComponent } from 'src/app/components/chat/chat.component';
-import { DashboardComponent } from 'src/app/components/dashboard/dashboard.component';
-import { HostComponent } from 'src/app/components/host/host.component';
-import { LandingComponent } from 'src/app/components/landing/landing.component';
-import { RoomComponent } from 'src/app/components/room/room.component';
-import { InGameGuard } from 'src/app/guards/in-game.guard';
+import { NgModule } from '@angular/core'
+import { Routes, RouterModule } from '@angular/router'
+import { AuthGuard } from '@auth0/auth0-angular'
+import { BioComponent } from 'src/app/components/bio/bio.component'
+import { ChatComponent } from 'src/app/components/chat/chat.component'
+import { DashboardComponent } from 'src/app/components/dashboard/dashboard.component'
+import { HostComponent } from 'src/app/components/host/host.component'
+import { JoinComponent } from 'src/app/components/join/join.component'
+import { LandingComponent } from 'src/app/components/landing/landing.component'
+import { RoomComponent } from 'src/app/components/room/room.component'
+import { GameActiveGuard } from 'src/app/guards/game-active.guard'
 
 const routes: Routes = [
-  { path: '', pathMatch: 'full', component: LandingComponent, },
+  { path: '', pathMatch: 'full', component: LandingComponent },
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
   {
-    path: 'game/:id',
-    canActivate: [AuthGuard, InGameGuard],
+    path: 'game',
+    canActivate: [AuthGuard],
     children: [
       {
-        path: 'host',
+        path: ':gameId',
+        canActivate: [GameActiveGuard],
         children: [
-          { path: '', pathMatch: 'full', component: HostComponent, },
-          { path: 'bio', component: BioComponent },
-          { path: 'chat', component: ChatComponent },
-          { path: 'room', component: RoomComponent },
-          { path: '**', redirectTo: '' }
+          {
+            path: 'host',
+            children: [
+              { path: '', pathMatch: 'full', component: HostComponent, },
+              { path: 'bio/:playerId', component: BioComponent },
+              { path: 'chat/:chatId', component: ChatComponent },
+              { path: 'room/:playerId', component: RoomComponent },
+              { path: '**', redirectTo: '' }
+            ]
+          },
+          {
+            path: 'room',
+            children: [
+              { path: 'bio/:playerId', component: BioComponent },
+              { path: 'chat/:chatId', component: ChatComponent },
+              { path: '**', redirectTo: 'chat' }
+            ]
+          },
+          {
+            path: 'join',
+            component: JoinComponent
+          },
+          { path: '**', redirectTo: '/dashboard' }
         ]
       },
-      {
-        path: 'room',
-        children: [
-          { path: 'bio', component: BioComponent },
-          { path: 'chat', component: ChatComponent },
-          { path: '**', redirectTo: 'chat' }
-        ]
-      },
-      { path: '**', redirectTo: '/dashboard' } // TODO: show current game in dashboard
+      { path: '**', redirectTo: '/dashboard' }
     ]
   },
   { path: '**', redirectTo: '' }
-];
+]
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes, { relativeLinkResolution: 'legacy' })],
+  imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule]
 })
 export class AppRoutingModule { }

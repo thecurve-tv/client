@@ -1,0 +1,48 @@
+<div class="content" *ngVar="(game$ | async) as game">
+  <div class="status-box loading color-muted" *ngIf="loadingGame">
+    <mat-spinner [diameter]="20"></mat-spinner>
+    Opening invite
+  </div>
+  <span class="sub-content-container" *ngIf="(gameStatus$ | async) as gameStatus" [ngSwitch]="gameStatus">
+    <div class="sub-content" *ngSwitchCase="'open'">
+      <h3>
+        <span class="color-accent">{{game.hostAccount.email}}</span>
+        <br />
+        is inviting you to a game
+      </h3>
+      <div *ngIf="!joinForm" class="bubble bg-secondary">
+        <div class="max-players">
+          <i class="material-icons">person_outline</i>
+          up to {{game.maxPlayerCount}}
+        </div>
+        <div class="actions">
+          <button class="btn-primary accept" (click)="onAcceptClick()">Accept</button>
+          <button class="btn-primary deny" [routerLink]="'/'">Deny</button>
+        </div>
+        <div class="time-left">{{getGameTimeLeftStr(game)}}</div>
+      </div>
+      <form *ngIf="joinForm" [formGroup]="joinForm" (ngSubmit)="submitJoinForm(game)" class="bubble bg-secondary">
+        <i class="material-icons" (click)="joinForm = null">arrow_back</i>
+        <label class="input">
+          Enter a name
+          <input type="text" formControlName="name" [class]="{'invalid-input': !joinForm.get('name').valid}">
+          <span class="color-red" *ngIf="!joinForm.get('name').valid">
+            Names must be between 1 and 20 characters
+          </span>
+          <div class="label-floor"></div>
+        </label>
+        <button class="btn-inverse" type="submit" [disabled]="!joinForm.valid">
+          Start game
+        </button>
+      </form>
+      <div class="bottom">
+        The Curve
+        <button *ngIf="(account$ | async) as account" [routerLink]="'/dashboard'">
+          <i class="material-icons">account_circle</i>
+          Signed in as&nbsp;
+          <span class="color-accent">{{account.email}}</span>
+        </button>
+      </div>
+    </div>
+  </span>
+</div>

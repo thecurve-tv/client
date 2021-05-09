@@ -1,5 +1,82 @@
-<h1>Welcome Back to THE Curve</h1>
-
-<button class="btn-primary" (click)="onStartClicked()">Start a Game</button>
-
-<app-logout-button></app-logout-button>
+<div class="content" *ngVar="(account$ | async) as account">
+  <div class="header">
+    <h1>Welcome Back to THE Curve!</h1>
+    <app-logout-button class="logout"></app-logout-button>
+  </div>
+  <div class="games-row">
+    <div class="games-row-section">
+      <h3>START A GAME</h3>
+      <div class="games-row-bubbles">
+        <button class="new-game" [disabled]="loadingRecentPlayerGames || isHostingAGame" (click)="onStartClicked()"
+          [title]="isHostingAGame ? 'You may only host 1 game at a time' : ''">
+          NEW
+        </button>
+        <button class="new-game">JOIN</button>
+      </div>
+    </div>
+    <div class="vertical-divider"></div>
+    <div class="games-row-section">
+      <h3>
+        JUMP BACK IN
+        <div class="loading color-muted" *ngIf="loadingRecentPlayerGames">
+          <mat-spinner [diameter]="20"></mat-spinner>
+          Refreshing...
+        </div>
+      </h3>
+      <div class="games-row-bubbles">
+        <!-- <div class="games-row-bubble" *ngFor="let activeGame of (activeGames$ | async)" infiniteScroll (scrolled)="onScroll()"></div> -->
+        <div class="games-row-bubble bg-accent w3-animate-opacity" *ngFor="let activePlayerGame of (activePlayerGames$ | async)">
+          <div class="games-row-bubble-date">{{getGameBubbleDateStr(activePlayerGame.game.startTime)}}</div>
+          <div class="games-row-bubble-name">{{activePlayerGame.name}}</div>
+          <div class="games-row-bubble-time">
+            {{util.getGameTimeLeftStr(activePlayerGame.game.endTime, activePlayerGame.game.pausedTime)}}
+          </div>
+          <div class="games-row-bubble-actions">
+            <button class="games-row-bubble-actions-resume material-icons"
+              (click)="resumeGame(activePlayerGame.game._id)" title="Resume game">
+              play_arrow
+            </button>
+            <button class="games-row-bubble-actions-stop material-icons"
+              *ngIf="activePlayerGame.game.hostAccount._id == _account._id"
+              (click)="stopGame(activePlayerGame.game._id)" title="Stop game">
+              stop
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="new-game-popup" *ngIf="newGameForm">
+    <div>
+      <button class="btn-primary" type="submit" (click)="newGameForm = null">
+        Cancel
+      </button>
+    </div>
+    <form [formGroup]="newGameForm" (ngSubmit)="submitNewGameForm()">
+      <label class="input">
+        Number of people
+        <input type="number" formControlName="numPlayers"
+          [class]="{'invalid-input': !newGameForm.get('numPlayers').valid}">
+        <span class="color-red" *ngIf="!newGameForm.get('numPlayers').valid">
+          Games require a minimum of 4 people (1 host and 3 players).<br />
+          Games also can't have more than 12 players.
+        </span>
+        <div class="label-floor"></div>
+      </label>
+      <label class="input">
+        Your nickname
+        <input type="text" formControlName="hostName" [class]="{'invalid-input': !newGameForm.get('hostName').valid}">
+        <span class="color-red" *ngIf="!newGameForm.get('hostName').valid">
+          You must provide a nickname for yourself & it cannot be longer than 20 characters.
+        </span>
+        <div class="label-floor"></div>
+      </label>
+      <button class="btn-accent" type="submit" [disabled]="!newGameForm.valid">
+        Start game
+      </button>
+      <span class="color-red" *ngIf="!newGameForm.valid">
+        Some values you entered are invalid. Please check above.
+      </span>
+    </form>
+  </div>
+</div>

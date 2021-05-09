@@ -6,13 +6,40 @@ import { UtilService } from './util.service';
 import { ErrorCodes } from './ErrorCodes';
 
 export interface PopupConfig {
-  type: 'error' | 'loading' | undefined
+  type: 'error' | 'loading' | 'choose' | 'info'
   message?: string
 }
 
 export interface ErrorPopupConfig extends PopupConfig {
   type: 'error'
   error?: any
+}
+
+interface ChoosePopupConfigFrame {
+  parent?: ChoosePopupConfigFrame
+  name: string
+  children: {
+    id: any
+    name: string
+  }[]
+}
+
+export interface ChoosePopupConfig extends PopupConfig {
+  type: 'choose'
+  parent: ChoosePopupConfigFrame
+  allowMultiSelect: boolean
+  selections: ChoosePopupConfigFrame['children']
+  select: (selection: ChoosePopupConfigFrame['children'][0]) => void
+  up: () => void
+  back: () => void
+  finish: () => void
+}
+
+export interface InfoPopupConfig extends PopupConfig {
+  type: 'info'
+  message: string
+  requireConfirmation?: boolean
+  confirm?: () => void
 }
 
 @Injectable({
@@ -26,10 +53,10 @@ export class PopupService {
   ) {
   }
 
-  newPopup(popup: ErrorPopupConfig | PopupConfig) {
+  newPopup(popup: PopupConfig | ErrorPopupConfig | InfoPopupConfig) {
     if (!popup.message) popup.message = 'Something went wrong'
     if ('error' in popup && popup.error) console.error(popup.error)
-    this.popup$ = of(popup)
+    setTimeout(() => this.popup$ = of(popup), 0)
   }
 
   dismissPopup() {

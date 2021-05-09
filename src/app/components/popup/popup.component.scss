@@ -1,12 +1,12 @@
 /* =============================================== */
 
+@use "../../../styles/vars";
+@use "../../../styles/host";
+
 :host {
-  width: 100%;
   position: absolute;
   top: 0;
-  bottom: var(
-    --navbar-height
-  ); /* add 2px because the navbar is 2px off bottom */
+  bottom: 0;
 }
 
 #popup {
@@ -43,10 +43,10 @@
   }
 
   h3 {
-    max-width: 380px;
-    padding: 7px 8px;
-    margin-bottom: -7px;
-    border-radius: 5px;
+    max-width: 50%;
+    margin-top: 1rem !important;
+    padding: 0.4375rem 0.5rem;
+    border-radius: 0.3125rem;
     text-align: center;
   }
 }
@@ -94,7 +94,7 @@
       }
 
       .selected {
-        background-color: var(--color-accent);
+        background-color: vars.$color-accent;
       }
     }
 
@@ -127,9 +127,10 @@
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
-    border: 0.5px solid #0d47a1;
-    background-color: var(--bg-primary);
-    box-shadow: var(--drop-shadow-strong);
+    border: 0.5px solid #bbdefb;
+    border-radius: 0.375rem;
+    background-color: vars.$bg-secondary-light;
+    box-shadow: vars.$drop-shadow-strong;
     overflow-y: auto;
 
     i {
@@ -202,13 +203,6 @@
   overflow: hidden;
   background-color: rgba(33, 33, 33, 0.7);
 
-  h1,
-  h2,
-  h3,
-  h4 {
-    color: var(--color-inverse);
-  }
-
   .header {
     .title {
       flex-grow: 1;
@@ -232,7 +226,17 @@
     padding: 6px 10px;
     border-radius: 10px;
     text-align: center;
-    background-color: var(--bg-primary);
+    background-color: vars.$bg-secondary-light;
+  }
+
+  div.dismiss {
+    display: flex;
+    justify-content: space-evenly;
+
+    button {
+      flex-grow: 1;
+      justify-content: center;
+    }
   }
 }
 
@@ -243,7 +247,7 @@
 }
 
 .error-popup {
-  border: 0.5px solid #b71c1c;
+  border: 0.5px solid #ffcdd2;
   background-color: #f44336;
-  color: var(--bg-secondary-light);
+  color: vars.$bg-secondary-light;
 }

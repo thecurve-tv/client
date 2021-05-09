@@ -74,7 +74,6 @@ export class UtilService {
     if (error.error) {
       try {
         const realmErr = JSON.parse(error.error)
-        console.log('realmErr.message: ', realmErr.message) //TODO remove this
         return Object.values(ErrorCodes).includes(realmErr.message) ? realmErr.message : null
       } catch (err) {
       }
@@ -95,5 +94,21 @@ export class UtilService {
         })
         .catch(err => sub.error(err))
     })
+  }
+
+  getGameTimeLeftStr(endTime: number, pausedTime?: number, appendStr?: string): string {
+    if (pausedTime) return 'PAUSED'
+    const now = Date.now()
+    if (endTime <= now) return 'ENDED'
+    const timeLeft = endTime - now
+    const oneMin = 60 * 1000
+    if (timeLeft <= oneMin) return 'ENDING'
+    const hoursLeft = Math.floor(timeLeft / (60 * oneMin))
+    const minsLeft = Math.floor((timeLeft - (hoursLeft * 60 * oneMin)) / oneMin)
+    const hoursLeftStr = hoursLeft > 0 ? `${hoursLeft} hr` : ''
+    const minsLeftStr = minsLeft > 0 ? `${minsLeft} min` : ''
+    const timeLeftStr = `${hoursLeftStr} ${minsLeftStr}`.trim()
+    if (appendStr) return `${timeLeftStr}${appendStr}`
+    return timeLeftStr
   }
 }

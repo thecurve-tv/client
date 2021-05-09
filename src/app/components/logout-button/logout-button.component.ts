@@ -17,7 +17,6 @@ export class LogoutButtonComponent implements OnInit {
   ngOnInit(): void { }
 
   async logout() {
-    console.log('LogoutButtonComponent: Redirecting to Auth0 logout...')
     this.authService.logout({ returnTo: environment.AUTH0_LOGOUT_URI });
   }
 }

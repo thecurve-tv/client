@@ -1,0 +1,60 @@
+@use "../../../styles/vars";
+@use "../../../styles/host";
+
+.sub-content-container {
+  display: flex;
+  flex-grow: 1;
+}
+
+.sub-content {
+  display: flex;
+  flex-grow: 1;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+
+  h3 {
+    max-width: 100%;
+    text-align: center;
+
+    span {
+      font: vars.$h3-font;
+    }
+  }
+
+  .bubble {
+    display: flex;
+    width: fit-content;
+    padding: 3rem;
+    border-radius: 100%;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+
+    .max-players {
+      margin-top: 0.5rem;
+    }
+
+    .actions {
+      display: flex;
+      margin: 1rem;
+      justify-content: space-around;
+
+      button + button {
+        margin-left: 1rem;
+      }
+    }
+
+    .time-left {
+      margin-bottom: 0.5rem;
+    }
+  }
+
+  .bottom {
+    display: flex;
+    width: 100%;
+    margin-top: 2rem;
+    justify-content: space-between;
+    align-items: center;
+  }
+}

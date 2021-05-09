@@ -1,7 +1,5 @@
-import { ObjectId } from 'bson'
-
 export class Schema {
-  _id?: ObjectId
+  _id?: string
   _log: {
     createdDate: number,
   }

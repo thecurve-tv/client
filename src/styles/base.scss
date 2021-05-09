@@ -4,44 +4,7 @@
 
 /* custom css */
 @use "_anim";
-
-/* ================= variables ======================= */
-
-$color-accent: #16c3c4 !important;
-$color-accent-lighter: #20dedf;
-$color-accent-darker: #18a7a8;
-$color-inverse: #fafafa !important;
-$color-muted: #b2b2b2;
-$color-secondary: #989898;
-$color-primary: #4d4d4d !important;
-$color-black: #282828;
-$color-purple: #6a1b9a;
-$color-red: #f44336;
-$color-orange: #ff9800;
-$color-yellow: #fade04;
-$color-yellow-darkest: #948404;
-
-$bg-accent: $color-accent !important;
-$bg-accent-light: #7de7e8;
-$bg-primary: #ffffff !important;
-$bg-secondary: #eeeeee !important;
-$bg-secondary-light: #fafafa;
-$bg-secondary-strong: #989898;
-$bg-muted: #e0e0e0;
-$bg-darker: #4d4d4d;
-
-$border-accent: 1px solid $color-accent !important;
-$border-red: 1px solid $color-red;
-
-$drop-shadow: 1px 1px 3px rgba(99, 99, 99, 0.5);
-$drop-shadow-light: 1px 1px 3px rgba(122, 122, 122, 0.3);
-$drop-shadow-strong: 1px 1px 5px rgba(0, 0, 0, 0.2);
-$drop-shadow-top: -1px -1px 3px rgba(99, 99, 99, 0.5);
-$drop-shadow-top-light: -1px -1px 3px rgba(122, 122, 122, 0.3);
-
-$page-title-padding: 30px 3vw 10px 3vw;
-$page-content-vert-padding: 25px;
-$page-content-horz-padding: 2.5vw;
+@use "_vars";
 
 /* ================== global selectors ===================== */
 
@@ -76,7 +39,7 @@ html {
   font-size: 1rem;
   scroll-behavior: smooth;
   box-sizing: border-box;
-  color: $color-primary;
+  color: vars.$color-primary;
 }
 
 a {
@@ -87,6 +50,7 @@ app-root {
   display: flex;
   width: 100%;
   flex-direction: column;
+  flex-grow: 1;
 }
 
 /* =============== tag selectors ====================== */
@@ -122,7 +86,7 @@ input[type="button"] {
   border: none;
   border-radius: 0.1875rem;
   background-color: transparent;
-  color: $color-primary;
+  color: vars.$color-primary;
   cursor: pointer !important;
 }
 
@@ -136,8 +100,8 @@ label > input[type="button"] {
 button.pressed,
 .btn.pressed,
 input[type="button"].pressed {
-  background-color: $color-yellow;
-  color: $color-inverse;
+  background-color: vars.$color-yellow;
+  color: vars.$color-inverse;
 }
 
 button i,
@@ -151,20 +115,20 @@ input[type="button"] i {
 button:disabled,
 .btn:disabled,
 input[type="button"]:disabled {
-  background-color: $bg-secondary;
-  color: $color-secondary;
+  background-color: vars.$bg-secondary;
+  color: vars.$color-secondary;
 }
 
 button:disabled:hover,
 .btn:disabled:hover,
 input[type="button"]:disabled:hover {
-  background-color: $bg-secondary !important;
-  color: $color-secondary !important;
+  background-color: vars.$bg-secondary !important;
+  color: vars.$color-secondary !important;
 }
 
 code {
   padding: 0.1875rem 0.3125rem;
-  background-color: $bg-secondary;
+  background-color: vars.$bg-secondary;
   border-radius: 0.125rem;
 }
 
@@ -172,27 +136,26 @@ h1,
 h2,
 h3,
 h4 {
-  color: $color-black;
+  color: vars.$color-white;
 }
 
 h1 {
   margin-top: 0.625rem;
   margin-bottom: 0.3125rem;
-  font: 700 2.125rem "Montserrat", "Gotham Bold", sans-serif !important;
+  font: 700 28px vars.$h1-font-families !important;
 }
 
 h2 {
   margin-top: 0;
   margin-bottom: 0.3125rem;
-  /* font: 500 1.5rem "Montserrat", "Gotham Light Regular", sans-serif !important; */
-  font: 600 2rem "Montserrat", "Gotham Light Regular", sans-serif !important;
+  font: 600 1.5rem "Montserrat", "Gotham Light Regular", sans-serif !important;
 }
 
 h3 {
   min-width: 100%;
   margin-top: 0px !important;
   margin-bottom: 0.3125rem !important;
-  font: 700 1rem "Gotham Light Regular", "Montserrat", sans-serif !important;
+  font: vars.$h3-font !important;
 }
 
 h4 {
@@ -202,13 +165,14 @@ h4 {
 
 i {
   font-size: 1rem !important;
+  color: inherit;
 }
 
 input {
-  padding: 0px 5px;
-  background-color: $bg-secondary-light;
+  padding: 0.625rem 0.5rem;
+  background-color: vars.$bg-secondary-light;
   border: 0px;
-  color: $color-primary;
+  color: vars.$color-primary;
 }
 
 li {
@@ -255,165 +219,167 @@ ng-include {
   overflow-y: auto;
 
   .page-title {
-    padding: $page-title-padding;
-    background-color: $bg-accent;
+    padding: vars.$page-title-padding;
+    background-color: vars.$bg-accent;
   }
 
   .content {
     display: flex;
     flex-grow: 1;
-    padding: $page-content-vert-padding $page-content-horz-padding;
+    padding: vars.$page-content-vert-padding vars.$page-content-horz-padding;
     flex-direction: column;
-    background-color: $bg-primary;
+    background-color: vars.$bg-primary;
   }
 }
 
 /* =================== themeing ====================== */
 
 .bg-accent {
-  background-color: $bg-accent !important;
+  background-color: vars.$bg-accent !important;
 }
 
 .bg-accent-light {
-  background-color: $bg-accent-light;
+  background-color: vars.$bg-accent-light;
 }
 
 .bg-primary {
-  background-color: $bg-primary !important;
+  background-color: vars.$bg-primary !important;
 }
 
 .bg-secondary {
-  background-color: $bg-secondary !important;
+  background-color: vars.$bg-secondary !important;
 }
 
 .bg-secondary-light {
-  background-color: $bg-secondary-light;
+  background-color: vars.$bg-secondary-light;
 }
 
 .bg-secondary-strong {
-  background-color: $bg-secondary-strong;
+  background-color: vars.$bg-secondary-strong;
 }
 
 .border-accent {
-  border: 1px solid $color-accent !important;
+  border: 1px solid vars.$color-accent !important;
 }
 
 .border-red {
-  border: 1px solid $color-red;
+  border: 1px solid vars.$color-red;
 }
 
 .border-secondary {
-  border: 1px solid $bg-secondary !important;
+  border: 1px solid vars.$bg-secondary !important;
 }
 
 .color-accent {
-  color: $color-accent !important;
+  color: vars.$color-accent !important;
 }
 
 .color-inverse {
-  color: $color-inverse !important;
+  color: vars.$color-inverse !important;
 }
 
 .color-muted {
-  color: $color-muted;
+  color: vars.$color-muted;
 }
 
 .color-secondary {
-  color: $color-secondary;
+  color: vars.$color-secondary;
 }
 
 .color-primary {
-  color: $color-primary !important;
+  color: vars.$color-primary !important;
 }
 
 .color-black {
-  color: $color-black;
+  color: vars.$color-white;
 }
 
 .color-purple {
-  color: $color-purple;
+  color: vars.$color-purple;
 }
 
 .color-red {
-  color: $color-red;
+  color: vars.$color-red;
 }
 
 .color-orange {
-  color: $color-orange;
+  color: vars.$color-orange;
 }
 
 .color-yellow {
-  color: $color-yellow;
+  color: vars.$color-yellow;
 }
 
 .color-accent-darker {
-  color: $color-accent-darker;
+  color: vars.$color-accent-darker;
 }
 
 /* ================= component styling ==================== */
 
 .btn-primary {
   padding: 0.4375rem 0.625rem;
-  border: 1px solid $color-black;
-  color: $color-primary;
+  border: 1px solid vars.$color-white;
+  color: vars.$color-primary;
 }
 
 .btn-primary:hover,
 .btn-primary:hover > i {
-  background-color: $color-primary !important;
-  color: $color-inverse;
+  background-color: vars.$color-primary !important;
+  color: vars.$color-inverse;
 }
 
 .btn-secondary:hover,
 .btn-secondary:hover > i {
-  background-color: $bg-muted !important;
+  background-color: vars.$bg-muted !important;
 }
 
 .btn-accent {
   padding: 0.375rem 0.625rem;
-  border: 1px solid $color-accent;
-  background-color: $color-accent;
-  color: $color-inverse;
+  border: 1px solid vars.$color-accent;
+  background-color: vars.$color-accent;
+  color: vars.$color-inverse;
 }
 
 .btn-accent:hover {
-  background-color: $color-yellow !important;
-  color: $color-black;
+  background-color: vars.$color-yellow !important;
+  color: vars.$color-inverse;
 }
 
 .btn-inverse {
   padding: 0.4375rem 0.625rem;
-  background-color: $color-yellow;
-  border: 1px solid $color-yellow;
-  color: $color-black;
+  background-color: vars.$color-yellow;
+  border: 1px solid vars.$color-yellow;
+  color: vars.$color-inverse;
 }
 
 .btn-inverse:hover,
 .btn-inverse:hover > i {
-  background-color: $color-accent;
-  color: $color-inverse;
+  background-color: vars.$color-accent;
+  color: vars.$color-inverse;
 }
 
 .divider {
   width: calc(100% - 20px);
   height: 0.0625rem;
   margin: 0.625rem;
-  background-color: $bg-muted;
+  background-color: vars.$bg-muted;
 }
 
 .vertical-divider {
   width: 0.0625rem;
-  margin: 0 0.3125rem;
-  background-color: $bg-muted;
+  margin: 0 1rem;
+  background-color: vars.$bg-muted;
 }
 
 .input {
-  margin-bottom: 0.625rem;
+  display: flex;
+  margin-bottom: 1.25rem;
   padding-top: 2px;
-  background-color: $bg-secondary-light;
+  flex-direction: column;
 
   input {
     height: 100%;
+    border-radius: 0.375rem;
   }
 
   input:focus {
@@ -427,7 +393,7 @@ ng-include {
   input:focus + .label-floor {
     margin-top: 3px;
     height: 2px;
-    background-color: $color-accent;
+    background-color: vars.$color-accent;
   }
 
   .invalid-input + .label-floor,
@@ -450,15 +416,15 @@ ng-include {
 }
 
 .drop-shadow {
-  box-shadow: $drop-shadow;
+  box-shadow: vars.$drop-shadow;
 }
 
 .drop-shadow-light {
-  box-shadow: $drop-shadow-light;
+  box-shadow: vars.$drop-shadow-light;
 }
 
 .drop-shadow-strong {
-  box-shadow: $drop-shadow-strong;
+  box-shadow: vars.$drop-shadow-strong;
 }
 
 .invisible {
@@ -497,7 +463,7 @@ ng-include {
 }
 
 .context-menu-item:hover {
-  background-color: $bg-secondary;
+  background-color: vars.$bg-secondary;
 }
 
 .context-menu-item i {
@@ -512,13 +478,14 @@ ng-include {
   display: flex;
   height: 100%;
   padding: 20px;
+  flex-grow: 1;
   flex-flow: column;
   align-items: center;
   justify-content: center;
   text-align: center;
 
   .loading {
-    color: $color-accent;
+    color: vars.$color-accent;
   }
 
   .error {
