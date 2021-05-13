@@ -1,7 +1,5 @@
-import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
-
-import { ErrorCodes } from './ErrorCodes';
+import { Injectable } from '@angular/core'
+import { Observable } from 'rxjs'
 
 @Injectable({
   providedIn: 'root'
@@ -68,21 +66,6 @@ export class UtilService {
 
   public parseTimeStr(time: string): number[] {
     return time.split(':').map(part => parseInt(part))
-  }
-
-  getErrorCode(error: any): ErrorCodes | null {
-    if (error.error) {
-      try {
-        const realmErr = JSON.parse(error.error)
-        return Object.values(ErrorCodes).includes(realmErr.message) ? realmErr.message : null
-      } catch (err) {
-      }
-    }
-    return null
-  }
-
-  errorMatchesCode(code: ErrorCodes, error: any): boolean {
-    return this.getErrorCode(error) === code
   }
 
   public promiseToObservable<T>(func: () => Promise<T>): Observable<T> {

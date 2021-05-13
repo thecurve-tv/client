@@ -1,9 +1,8 @@
-import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { catchError, map, switchMap } from 'rxjs/operators';
+import { Injectable } from '@angular/core'
+import { Observable, of } from 'rxjs'
+import { catchError, map, switchMap } from 'rxjs/operators'
 
-import { UtilService } from './util.service';
-import { ErrorCodes } from './ErrorCodes';
+import { UtilService } from './util.service'
 
 export interface PopupConfig {
   type: 'error' | 'loading' | 'choose' | 'info'
@@ -63,7 +62,7 @@ export class PopupService {
     this.popup$ = null
   }
 
-  performWithPopup<T>(message: string, obs: Observable<T>, knownErr?: ErrorCodes): Observable<T> {
+  performWithPopup<T>(message: string, obs: Observable<T>): Observable<T> {
     return of(undefined).pipe(
       // display the loading popup
       map(() => this.newPopup({
@@ -74,12 +73,10 @@ export class PopupService {
       switchMap(_ => obs),
       // handle any errors
       catchError(err => {
-        if (!knownErr || !this.util.errorMatchesCode(knownErr, err)) {
-          console.error(err)
-        }
+        console.error(err)
         this.newPopup({
           type: 'error',
-          message: this.util.getErrorCode(err)
+          message: err.message || err
         })
         throw err // re-throw the error
       }),

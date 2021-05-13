@@ -20,7 +20,7 @@ import { LogoutButtonComponent } from 'src/app/components/logout-button/logout-b
 import { DashboardComponent } from 'src/app/components/dashboard/dashboard.component'
 import { PopupComponent } from 'src/app/components/popup/popup.component'
 import { GraphQLModule } from './graphql.module'
-import { VarDirective } from 'src/app/ng-var.directive';
+import { VarDirective } from 'src/app/directives/ng-var.directive';
 import { JoinComponent } from './components/join/join.component'
 
 @NgModule({
