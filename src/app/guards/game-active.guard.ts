@@ -29,6 +29,7 @@ export class GameActiveGuard implements CanActivate {
       map(({ data }) => {
         const game = data.gameById
         if (game == null) return exitRoute
+        if (game.pausedTime) return exitRoute
         const cutOffTime = game.endTime - (60 * 1000) // declare game ended 60 seconds before
         if (cutOffTime <= Date.now()) return exitRoute
         return true

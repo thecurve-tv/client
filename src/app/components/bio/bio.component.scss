@@ -1,1 +1,38 @@
-@use "../../../styles/host"
+@use "../../../styles/host";
+
+.host {
+  display: flex;
+  flex-grow: 1;
+}
+
+.photo-container {
+  display: flex;
+  flex: 1 0 calc(50% - 1.5rem);
+  flex-direction: column;
+  align-items: center;
+
+  img {
+    width: 100%;
+    flex: 1 1 100%;
+    object-fit: contain;
+    margin-bottom: 1rem;
+  }
+
+  button {
+    margin-bottom: 2rem;
+  }
+}
+
+.details {
+  display: flex;
+  flex: 1 0 50%;
+  margin-left: 1.5rem;
+  flex-direction: column;
+  justify-content: center;
+
+  .name {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+}

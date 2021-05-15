@@ -1,1 +1,60 @@
-@use "../../../styles/host"
+@use "../../../styles/vars";
+@use "../../../styles/host";
+
+.shortcuts-bar {
+  display: flex;
+  margin-bottom: 1rem;
+  padding: 0.5rem 0.5rem 1rem 0.5rem;
+  align-items: center;
+  border-bottom: 1px solid vars.$bg-secondary;
+
+  .shortcut {
+    display: flex;
+    padding: 6px 12px;
+    border-radius: 16px;
+    border: 1px solid vars.$bg-secondary-strong;
+    align-items: center;
+  }
+
+  .shortcut,
+  .shortcut i {
+    font-size: 1.5rem !important;
+  }
+
+  .shortcut + .shortcut {
+    margin-left: 1rem;
+  }
+}
+
+.main {
+  display: flex;
+  flex-grow: 1;
+
+  .nav-bar {
+    display: flex;
+    padding-right: vars.$page-content-horz-padding;
+    justify-content: center;
+    flex-direction: column;
+    border-right: 1px solid vars.$bg-secondary;
+
+    i {
+      padding: 1rem;
+      border-radius: 0.375rem;
+      font-size: 2rem !important;
+    }
+
+    i:hover {
+      background-color: vars.$bg-secondary;
+    }
+
+    i + i {
+      margin-top: 2rem;
+    }
+  }
+
+  .frame {
+    display: flex;
+    flex-grow: 1;
+    margin-left: 1rem;
+  }
+}

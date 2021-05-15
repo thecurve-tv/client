@@ -1,8 +1,6 @@
 import { NgModule } from '@angular/core'
 import { Routes, RouterModule } from '@angular/router'
 import { AuthGuard } from '@auth0/auth0-angular'
-import { BioComponent } from 'src/app/components/bio/bio.component'
-import { ChatComponent } from 'src/app/components/chat/chat.component'
 import { DashboardComponent } from 'src/app/components/dashboard/dashboard.component'
 import { HostComponent } from 'src/app/components/host/host.component'
 import { JoinComponent } from 'src/app/components/join/join.component'
@@ -21,28 +19,9 @@ const routes: Routes = [
         path: ':gameId',
         canActivate: [GameActiveGuard],
         children: [
-          {
-            path: 'host',
-            children: [
-              { path: '', pathMatch: 'full', component: HostComponent, },
-              { path: 'bio/:playerId', component: BioComponent },
-              { path: 'chat/:chatId', component: ChatComponent },
-              { path: 'room/:playerId', component: RoomComponent },
-              { path: '**', redirectTo: '' }
-            ]
-          },
-          {
-            path: 'room',
-            children: [
-              { path: 'bio/:playerId', component: BioComponent },
-              { path: 'chat/:chatId', component: ChatComponent },
-              { path: '**', redirectTo: 'chat' }
-            ]
-          },
-          {
-            path: 'join',
-            component: JoinComponent
-          },
+          { path: 'host', component: HostComponent },
+          { path: 'room', component: RoomComponent },
+          { path: 'join', component: JoinComponent },
           { path: '**', redirectTo: '/dashboard' }
         ]
       },

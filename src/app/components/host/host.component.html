@@ -12,12 +12,12 @@
   <div class="main">
     <div class="actions"></div>
     <div class="players">
-      <button class="btn-inverse invite" (click)="onInviteClick()" [disabled]="curPlayerCount == game.maxPlayerCount">
+      <button class="btn-inverse invite" (click)="onInviteClick(game)" [disabled]="curPlayerCount == game.maxPlayerCount">
         <i class="material-icons">add</i>
         Invite ({{game.maxPlayerCount - curPlayerCount}} left)
       </button>
-      <button class="btn-primary w3-animate-opacity player" *ngFor="let player of (players$ | async)" [routerLink]="['./room', player._id]"
-        title="View player">
+      <button class="btn-primary w3-animate-opacity player" *ngFor="let player of (players$ | async)"
+        [routerLink]="['./room', player._id]" title="View player">
         <img class="photo" *ngIf="player.photo" [src]="player.photo.uri" [alt]="player.photo.alt" />
         <i class="material-icons photo" *ngIf="!player.photo">account_circle</i>
         {{player.name}}
@@ -25,8 +25,8 @@
     </div>
   </div>
   <h2>Active Chats</h2>
-  <button class="btn-primary chat w3-animate-opacity" *ngFor="let chat of (chats$ | async)" [routerLink]="['./chat', chat._id]"
-    title="View chat">
+  <button class="btn-primary chat w3-animate-opacity" *ngFor="let chat of (chats$ | async)"
+    [routerLink]="['./chat', chat._id]" title="View chat">
     {{chat.name}}
     <div class="chat-players">
       <span *ngFor="let chatPlayer of chat.players" [title]="chatPlayer.name">

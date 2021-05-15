@@ -1,1 +1,61 @@
-<p>bio works!</p>
+<div class="host" *ngIf="(player$ | async) as player">
+  <div class="photo-container">
+    <img [src]="player.photo.uri" [alt]="player.photo.alt">
+    <button class="btn-accent" (click)="onChangePhotoClick(player)">
+      <i class="material-icons">edit</i>
+      CHANGE
+    </button>
+  </div>
+  <div class="details" *ngIf="!bioForm">
+    <div class="name">
+      <h1 class="name-text">{{player.name}}</h1>
+      <button class="btn-inverse">
+        CHAT
+      </button>
+    </div>
+    <ul class="bullets">
+      <li>{{player.age}}</li>
+      <li>{{player.job}}</li>
+    </ul>
+    <p class="bio">{{player.bio}}</p>
+  </div>
+  <form class="details" *ngIf="bioForm" [formGroup]="bioForm" (ngSubmit)="submitBioForm(player)">
+    <div class="name">
+      <label class="name-text">
+        <input type="text" formControlName="name" [class]="{'invalid-input': !bioForm.get('name').valid}">
+        <span class="color-red" *ngIf="!bioForm.get('name').valid">
+          Names must be between 1 and 20 characters
+        </span>
+        <div class="label-floor"></div>
+      </label>
+      <button class="btn-inverse" type="submit" [disabled]="!bioForm.valid">
+        Save
+      </button>
+    </div>
+    <div class="bullets">
+      <label>
+        <input type="number" formControlName="age" [class]="{'invalid-input': !bioForm.get('age').valid}">
+        <span class="color-red" *ngIf="!bioForm.get('age').valid">
+          Age cannot be less than 13
+        </span>
+        <div class="label-floor"></div>
+      </label>
+      <label>
+        <input type="text" formControlName="job" [class]="{'invalid-input': !bioForm.get('job').valid}">
+        <span class="color-red" *ngIf="!bioForm.get('job').valid">
+          Job must be between 1 and 20 characters
+        </span>
+        <div class="label-floor"></div>
+      </label>
+    </div>
+    <div>
+      <label class="bio">
+        <input type="text" formControlName="bio" [class]="{'invalid-input': !bioForm.get('bio').valid}">
+        <span class="color-red" *ngIf="!bioForm.get('bio').valid">
+          Bio must be between 1 and 1000 characters
+        </span>
+        <div class="label-floor"></div>
+      </label>
+    </div>
+  </form>
+</div>

@@ -146,7 +146,7 @@ export class DashboardComponent implements OnInit {
         map(games => games.find(({ game }) => game._id == gameId)),
         switchMap(({ game }) => {
           const isGameHost = game.hostAccount._id == this._account._id
-          if (!isGameHost) return from(this.router.navigate(['game', gameId, 'room', 'chat', game.mainChat._id]))
+          if (!isGameHost) return from(this.router.navigate(['game', gameId, 'room']))
           return resumeGame(this.apollo, { gameId }).pipe(
             delay(2000),
             switchMap(() => from(this.router.navigate(['game', gameId, 'host'])))

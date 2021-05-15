@@ -103,8 +103,8 @@ export class JoinComponent implements OnInit {
       }).pipe(
         delay(2000),
         switchMap(({ data }) => {
-          const game = data.gameJoin
-          return from(this.router.navigate(['game', game._id, 'room', 'chat', game.mainChat]))
+          const { game } = data.gameJoin
+          return from(this.router.navigate(['game', game._id, 'room']))
         })
       )
     ).toPromise()

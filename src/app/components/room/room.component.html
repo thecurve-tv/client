@@ -1,1 +1,26 @@
-<p>room works!</p>
+<div class="content" *ngIf="(frame$ | async) as frame">
+  <div class="shortcuts-bar" *ngIf="(shortcuts$ | async) as shortcuts">
+    <div class="shortcut" *ngFor="let shortcut of shortcuts"
+      [class]="{'img-shortcut': shortcut.type == 'img', 'text-shortcut': shortcut.type == 'text'}"
+      (click)="shortcut.onClick()">
+      {{shortcut.text}}
+    </div>
+  </div>
+  <div class="main">
+    <div class="nav-bar">
+      <i class="material-icons" (click)="switchFrame('chat')"
+        [class]="{'color-accent-darker': frame.type == 'chat'}">chat</i>
+      <i class="material-icons" (click)="switchFrame('bio')"
+        [class]="{'color-accent-darker': frame.type == 'bio'}">person_outline</i>
+      <i class="material-icons" (click)="switchFrame('ranking')"
+        [class]="{'color-accent-darker': frame.type == 'ranking'}">equalizer</i>
+    </div>
+    <div class="frame" [ngSwitch]="frame.type">
+      <app-chat *ngSwitchCase="'chat'" [chatId]="frame.docId" [gameInfo$]="gameInfo$" [accountId$]="accountId$">
+      </app-chat>
+      <app-bio *ngSwitchCase="'bio'" [playerId]="frame.docId" [gameInfo$]="gameInfo$" [accountId$]="accountId$"
+        (bioSavedEvent)="onGameInfoChanged()">
+      </app-bio>
+    </div>
+  </div>
+</div>

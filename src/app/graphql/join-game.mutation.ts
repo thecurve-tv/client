@@ -7,8 +7,15 @@ mutation JoinGame($gameId: MongoID!, $playerName: String!) {
     gameId: $gameId
     playerName: $playerName
   ) {
-    _id
-    mainChat
+    game {
+      _id
+    	mainChat {
+        _id
+      }
+    }
+    player {
+      _id
+    }
   }
 }
 `
@@ -20,8 +27,11 @@ export interface JoinGameMutationVariables {
 
 export interface JoinGameMutationResult {
   gameJoin: {
-    _id: string
-    mainChat: string
+    game: {
+      _id: string
+      mainChat: { _id: string }
+    }
+    player: { _id: string }
   }
 }
 
