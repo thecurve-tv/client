@@ -3,17 +3,15 @@ import { ActivatedRoute } from '@angular/router'
 import { Apollo, QueryRef } from 'apollo-angular'
 import { Observable, of, ReplaySubject } from 'rxjs'
 import { filter, map, shareReplay, switchMap, take } from 'rxjs/operators'
-import { getChats, GetChatsQueryResult } from 'src/app/graphql/get-chats.query'
 import { getGameInfo, GetGameInfoQueryResult, GetGameInfoQueryVariables } from 'src/app/graphql/get-game-info.query'
 import { Account } from 'src/app/models/account'
 import { ApiService } from 'src/app/services/api.service'
 
-export type ChatPlayer = GetChatsQueryResult['chatPlayerMany'][0]
-export type Chat = ChatPlayer['chat']
-export type GameInfo = {
-  game: GetGameInfoQueryResult['game']
-  players: GetGameInfoQueryResult['players']
-  chats: { [_id: string]: Chat & { players: string[] } }
+export type Chat = Omit<GetGameInfoQueryResult['gameById']['chats'][0], 'players'> & {
+  players: GetGameInfoQueryResult['gameById']['players']
+}
+export type GameInfo = Omit<GetGameInfoQueryResult['gameById'], 'chats'> & {
+  chats: Chat[]
 }
 
 export interface Frame {
@@ -60,7 +58,7 @@ export class RoomComponent implements OnInit {
           this.frame$.next({
             type: 'chat',
             gameInfo,
-            docId: gameInfo.game.mainChat._id
+            docId: gameInfo.mainChat._id
           })
           return this.getShortcutsForChatFrame(gameInfo).pipe(
             map(shortcuts => this.shortcuts$.next(shortcuts))
@@ -91,27 +89,21 @@ export class RoomComponent implements OnInit {
         return { loading, data }
       }),
       filter(({ loading }) => !loading),
-      switchMap(({ data: partialGameInfo }) => {
-        return getChats(this.apollo, { playerIds: partialGameInfo.players.map(p => p._id) }).valueChanges.pipe(
-          filter(({ loading }) => !loading),
-          map(({ data }) => {
-            const chatPlayers = data.chatPlayerMany
-            const chats: GameInfo['chats'] = {}
-            chatPlayers.reduce((chatResults, { chat, player: { _id: playerId } }) => {
-              const chatResult = chatResults[chat._id]
-              if (chatResult) {
-                chatResult.players.push(playerId)
-              } else {
-                chatResults[chat._id] = {
-                  ...chat,
-                  players: [playerId]
-                }
-              }
-              return chatResults
-            }, chats)
-            return { ...partialGameInfo, chats }
-          })
-        )
+      map(({ data }) => {
+        const result = data.gameById
+        const chats: Chat[] = result.chats.map(chat => {
+          const chatPlayerIds = new Set(chat.players.map(cp => cp._id))
+          const playersInChat = result.players.filter(player => chatPlayerIds.has(player._id))
+          return <Chat>{
+            ...chat,
+            players: playersInChat
+          }
+        })
+        const gameInfo: GameInfo = {
+          ...result,
+          chats
+        }
+        return gameInfo
       }),
       map(_gameInfo => { // set default photo
         const gameInfo = { ..._gameInfo } // avoid read-only restriction
@@ -135,23 +127,22 @@ export class RoomComponent implements OnInit {
     return this.accountId$.pipe(
       map(accountId => {
         const loggedInPlayer = gameInfo.players.find(player => player.account._id == accountId)
-        const chatsWithPlayer = Object.values(gameInfo.chats).filter(chat => chat.players.includes(loggedInPlayer._id))
+        const chatsWithPlayer = gameInfo.chats.filter(chat => chat.players.find(chatPlayer => chatPlayer._id == loggedInPlayer._id))
         return chatsWithPlayer.map(chat => {
           const isImgShortcut = chat.players.length == 2
           const onClick = () => this.switchFrame('chat', chat._id)
-          if (!isImgShortcut) {
-            return <Shortcut>{
-              type: 'text',
-              text: chat.name,
-              onClick
-            }
-          } else {
-            const otherParticipantId = chat.players.find(participantId => participantId != loggedInPlayer._id)
-            const otherParticipant = gameInfo.players.find(player => player._id == otherParticipantId)
+          if (isImgShortcut) {
+            const otherParticipant = chat.players.find(participant => participant._id != loggedInPlayer._id)
             return <Shortcut>{
               type: 'img',
               src: otherParticipant.photo.uri,
               alt: otherParticipant.photo.alt,
+              onClick
+            }
+          } else {
+            return <Shortcut>{
+              type: 'text',
+              text: chat.name,
               onClick
             }
           }

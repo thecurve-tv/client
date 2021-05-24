@@ -2,19 +2,17 @@ import { Component, OnInit } from '@angular/core'
 import { FormControl, FormGroup, Validators } from '@angular/forms'
 import { ActivatedRoute, Router } from '@angular/router'
 import { Apollo, QueryRef } from 'apollo-angular'
-import { from, Observable, ReplaySubject } from 'rxjs'
-import { delay, filter, map, switchMap, take } from 'rxjs/operators'
-import { getAccount, GetAccountQueryResult } from 'src/app/graphql/get-account.query'
-import { getGame, GetGameQueryResult, GetGameQueryVariables } from 'src/app/graphql/get-game.query'
-import { getPlayers, GetPlayersQueryResult } from 'src/app/graphql/get-players.query'
+import { from, Observable } from 'rxjs'
+import { delay, filter, map, switchMap } from 'rxjs/operators'
+import { GetGameInviteQueryResult, GetGameInviteQueryVariables, getGameInvite } from 'src/app/graphql/get-game-invite'
+import { getMyAccount, GetAccountQueryResult } from 'src/app/graphql/get-my-account.query'
 import { joinGame } from 'src/app/graphql/join-game.mutation'
 import { ApiService } from 'src/app/services/api.service'
 import { PopupService } from 'src/app/services/popup.service'
 import { UtilService } from 'src/app/services/util.service'
 
-type Account = GetAccountQueryResult['accountById']
-type Game = GetGameQueryResult['gameById']
-type Player = GetPlayersQueryResult['playerMany'][0]
+type Account = GetAccountQueryResult['myAccount']
+type GameInvite = GetGameInviteQueryResult['gameGetInvite']
 
 @Component({
   selector: 'app-join',
@@ -22,12 +20,10 @@ type Player = GetPlayersQueryResult['playerMany'][0]
   styleUrls: ['./join.component.scss']
 })
 export class JoinComponent implements OnInit {
-  private gameQuery: QueryRef<GetGameQueryResult, GetGameQueryVariables>
+  private gameQuery: QueryRef<GetGameInviteQueryResult, GetGameInviteQueryVariables>
   account$: Observable<Account>
-  game$: Observable<Game>
+  gameInvite$: Observable<GameInvite>
   loadingGame: boolean
-  gameStatus$: ReplaySubject<'open' | 'full' | 'closed' | undefined>
-  players$: Observable<Player[]>
   joinForm: FormGroup
 
   constructor(
@@ -42,48 +38,27 @@ export class JoinComponent implements OnInit {
   ngOnInit(): void {
     this.account$ = this.apiService.getAccountId().pipe(
       switchMap(({ _id: accountId }) => {
-        return getAccount(this.apollo, { accountId }, 60 * 1000).valueChanges
+        return getMyAccount(this.apollo, { accountId }, 60 * 1000).valueChanges
       }),
       filter(({ loading }) => !loading),
-      map(({ data }) => data.accountById)
+      map(({ data }) => data.myAccount)
     )
     this.activatedRoute.params.subscribe(params => {
       const gameId = params.gameId
-      this.gameQuery = getGame(this.apollo, { gameId }, 60 * 1000)
+      this.gameQuery = getGameInvite(this.apollo, { gameId }, 60 * 1000)
       this.loadingGame = true
-      this.gameStatus$ = new ReplaySubject(1)
-      this.game$ = this.gameQuery.valueChanges.pipe(
+      this.gameInvite$ = this.gameQuery.valueChanges.pipe(
         map(({ data, loading }) => {
           this.loadingGame = loading
-          if (loading) this.gameStatus$.next(undefined)
           return { data, loading }
         }),
         filter(({ loading }) => !loading),
-        map(({ data }) => data.gameById)
-      )
-      this.game$.pipe(
-        switchMap(game => {
-          return getPlayers(this.apollo, { gameId }).valueChanges.pipe(
-            filter(({ loading }) => !loading),
-            take(1),
-            map(({ data }) => {
-              const playerCount = data.playerMany.length
-              const cutOffTime = Date.now() - (60 * 1000)
-              if (game.pausedTime || game.endTime <= cutOffTime) return 'closed'
-              else if (playerCount == game.maxPlayerCount) return 'full'
-              return 'open'
-            })
-          )
-        })
-      ).subscribe(
-        gameStatus => this.gameStatus$.next(gameStatus),
-        err => this.gameStatus$.error(err),
-        () => this.gameStatus$.complete()
+        map(({ data }) => data.gameGetInvite)
       )
     })
   }
 
-  getGameTimeLeftStr(game: Game) {
+  getGameTimeLeftStr(game: GameInvite) {
     return this.util.getGameTimeLeftStr(game.endTime, game.pausedTime, ' left')
   }
 
@@ -93,7 +68,7 @@ export class JoinComponent implements OnInit {
     })
   }
 
-  async submitJoinForm(game: Game) {
+  async submitJoinForm(game: GameInvite) {
     if (!this.joinForm.valid) return
     await this.popupService.performWithPopup(
       'Joining game',

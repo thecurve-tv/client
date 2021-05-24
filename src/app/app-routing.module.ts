@@ -17,12 +17,16 @@ const routes: Routes = [
     children: [
       {
         path: ':gameId',
-        canActivate: [GameActiveGuard],
         children: [
-          { path: 'host', component: HostComponent },
-          { path: 'room', component: RoomComponent },
           { path: 'join', component: JoinComponent },
-          { path: '**', redirectTo: '/dashboard' }
+          {
+            path: '',
+            canActivate: [GameActiveGuard],
+            children: [
+              { path: 'host', component: HostComponent },
+              { path: 'room', component: RoomComponent }
+            ]
+          }
         ]
       },
       { path: '**', redirectTo: '/dashboard' }

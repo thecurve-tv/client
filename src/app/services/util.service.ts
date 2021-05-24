@@ -14,9 +14,9 @@ export class UtilService {
    * @param isFromHTMLDateField use to toggle if it's from a date field
    */
   public parseDateStr(dateStr: string, isFromHTMLDateField = false) {
-    const parts = dateStr.split("-").map(part => parseInt(part));
-    if (isFromHTMLDateField) parts[1]--;
-    return new Date(parts[0], parts[1], parts.length > 2 ? parts[2] : null);
+    const parts = dateStr.split("-").map(part => parseInt(part))
+    if (isFromHTMLDateField) parts[1]--
+    return new Date(parts[0], parts[1], parts.length > 2 ? parts[2] : null)
   }
 
   /**
@@ -85,7 +85,7 @@ export class UtilService {
     if (endTime <= now) return 'ENDED'
     const timeLeft = endTime - now
     const oneMin = 60 * 1000
-    if (timeLeft <= oneMin) return 'ENDING'
+    if (timeLeft <= 2 * oneMin) return 'ENDING' // cutoff time is (endTime - 60s), so don't catch the user by surprise
     const hoursLeft = Math.floor(timeLeft / (60 * oneMin))
     const minsLeft = Math.floor((timeLeft - (hoursLeft * 60 * oneMin)) / oneMin)
     const hoursLeftStr = hoursLeft > 0 ? `${hoursLeft} hr` : ''

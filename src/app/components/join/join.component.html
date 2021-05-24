@@ -1,10 +1,10 @@
-<div class="content" *ngVar="(game$ | async) as game">
+<div class="content" *ngVar="(gameInvite$ | async) as game">
   <div class="status-box loading color-muted" *ngIf="loadingGame">
     <mat-spinner [diameter]="20"></mat-spinner>
     Opening invite
   </div>
-  <span class="sub-content-container" *ngIf="(gameStatus$ | async) as gameStatus" [ngSwitch]="gameStatus">
-    <div class="sub-content" *ngSwitchCase="'open'">
+  <span class="sub-content-container" *ngIf="game?.gameStatus as gameStatus" [ngSwitch]="gameStatus">
+    <div class="sub-content" *ngSwitchCase="'OPEN'">
       <h3>
         <span class="color-accent">{{game.hostAccount.email}}</span>
         <br />

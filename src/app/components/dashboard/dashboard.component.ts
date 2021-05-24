@@ -14,7 +14,7 @@ import { ApiService } from 'src/app/services/api.service'
 import { PopupService } from 'src/app/services/popup.service'
 import { UtilService } from 'src/app/services/util.service'
 
-type RecentPlayerGame = GetJoinedGamesQueryResult['playerMany'][0]
+type RecentPlayerGame = GetJoinedGamesQueryResult['myAccount']['players'][0]
 
 @Component({
   selector: 'app-dashboard',
@@ -68,7 +68,7 @@ export class DashboardComponent implements OnInit {
       }),
       filter(({ loading }) => !loading),
       map(({ data }) => {
-        const playerGames = data.playerMany
+        const playerGames = data.myAccount.players
         const now = Date.now()
         const millisAfterEndTillGameIsNoLongerRecent = 3 * 24 * 60 * 60 * 1000 // 3 days
         const recentGames = playerGames
@@ -139,12 +139,15 @@ export class DashboardComponent implements OnInit {
   }
 
   async resumeGame(gameId: string) {
+    const now = Date.now()
     await this.popupService.performWithPopup(
       'Hopping back in',
       this.activePlayerGames$.pipe(
         take(1),
         map(games => games.find(({ game }) => game._id == gameId)),
         switchMap(({ game }) => {
+          const gameIsEnding = !game.pausedTime && (game.endTime - 60 * 1000) <= now
+          if (gameIsEnding) throw new Error('Sorry, this game is ending now and you cannot resume it anymore.')
           const isGameHost = game.hostAccount._id == this._account._id
           if (!isGameHost) return from(this.router.navigate(['game', gameId, 'room']))
           return resumeGame(this.apollo, { gameId }).pipe(

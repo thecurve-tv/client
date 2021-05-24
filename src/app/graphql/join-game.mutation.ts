@@ -4,7 +4,7 @@ import gql from 'graphql-tag'
 const JoinGameMutation = gql`
 mutation JoinGame($gameId: MongoID!, $playerName: String!) {
   gameJoin(
-    gameId: $gameId
+    _id: $gameId
     playerName: $playerName
   ) {
     game {
