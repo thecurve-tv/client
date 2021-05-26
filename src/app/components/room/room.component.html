@@ -1,8 +1,7 @@
 <div class="content" *ngIf="(frame$ | async) as frame">
   <div class="shortcuts-bar" *ngIf="(shortcuts$ | async) as shortcuts">
-    <div class="shortcut" *ngFor="let shortcut of shortcuts"
-      [class]="{'img-shortcut': shortcut.type == 'img', 'text-shortcut': shortcut.type == 'text'}"
-      (click)="shortcut.onClick()">
+    <div class="shortcut" *ngFor="let shortcut of shortcuts" (click)="shortcut.onClick()" [title]="shortcut.title">
+      <img *ngIf="shortcut.type == 'img'" [src]="shortcut.src" [alt]="shortcut.alt">
       {{shortcut.text}}
     </div>
   </div>
@@ -16,9 +15,9 @@
         [class]="{'color-accent-darker': frame.type == 'ranking'}">equalizer</i>
     </div>
     <div class="frame" [ngSwitch]="frame.type">
-      <app-chat *ngSwitchCase="'chat'" [chatId]="frame.docId" [gameInfo$]="gameInfo$" [accountId$]="accountId$">
+      <app-chat *ngSwitchCase="'chat'" [frame$]="frame$" [gameInfo$]="gameInfo$" [accountId$]="accountId$">
       </app-chat>
-      <app-bio *ngSwitchCase="'bio'" [playerId]="frame.docId" [gameInfo$]="gameInfo$" [accountId$]="accountId$"
+      <app-bio *ngSwitchCase="'bio'" [frame$]="frame$" [gameInfo$]="gameInfo$" [accountId$]="accountId$"
         (bioSavedEvent)="onGameInfoChanged()">
       </app-bio>
     </div>

@@ -1,13 +1,11 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core'
 import { FormControl, FormGroup, Validators } from '@angular/forms'
 import { Apollo } from 'apollo-angular'
-import { Observable } from 'rxjs'
+import { combineLatest, Observable } from 'rxjs'
 import { delay, map, switchMap } from 'rxjs/operators'
-import { GameInfo } from 'src/app/components/room/room.component'
+import { Frame, GameInfo, Player } from 'src/app/components/room/room.component'
 import { updateBio } from 'src/app/graphql/update-bio.mutation'
 import { PopupService } from 'src/app/services/popup.service'
-
-type Player = GameInfo['players'][0]
 
 @Component({
   selector: 'app-bio',
@@ -16,11 +14,12 @@ type Player = GameInfo['players'][0]
 })
 export class BioComponent implements OnInit {
   private loggedInAccountId: string
-  @Input() playerId: string
+  @Input() frame$: Observable<Frame>
   @Input() gameInfo$: Observable<GameInfo>
   @Input() accountId$: Observable<string>
   @Output() bioSavedEvent = new EventEmitter()
   player$: Observable<Player>
+  playerId: Player['_id']
   bioForm: FormGroup
 
   constructor(
@@ -29,12 +28,13 @@ export class BioComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.player$ = this.gameInfo$.pipe(
-      switchMap(({ players }) => {
+    this.player$ = combineLatest([this.frame$, this.gameInfo$]).pipe(
+      switchMap(([frame, gameInfo]) => {
+        this.playerId = frame.docId
         return this.accountId$.pipe(
           map(accountId => {
             this.loggedInAccountId = accountId
-            return players
+            return gameInfo.players
           })
         )
       }),

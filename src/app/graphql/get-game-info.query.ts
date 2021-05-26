@@ -62,7 +62,7 @@ export interface GetGameInfoQueryResult {
       age: number
       job: string
       bio: string
-      photo: {
+      photo?: {
         _id: string
         uri: string
         alt: string
