@@ -1,5 +1,5 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { PopupConfig, PopupService } from '../../services/popup.service';
+import { Component, Input, OnInit } from '@angular/core'
+import { Popup, PopupService } from '../../services/popup.service'
 
 @Component({
   selector: 'app-popup',
@@ -7,7 +7,7 @@ import { PopupConfig, PopupService } from '../../services/popup.service';
   styleUrls: ['./popup.component.scss']
 })
 export class PopupComponent implements OnInit {
-  @Input() readonly popup: PopupConfig
+  @Input() readonly popup: Popup<any, any>
 
   constructor(
     public popupService: PopupService
@@ -18,6 +18,6 @@ export class PopupComponent implements OnInit {
   }
 
   dismiss() {
-    this.popupService.dismissPopup()
+    this.popup.dismiss()
   }
 }

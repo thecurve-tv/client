@@ -1,56 +1,57 @@
-<div id="popup" *ngIf="popupService.popup$ | async as popup" [ngSwitch]="popup.type">
+<div id="popup" [ngSwitch]="popup.config.type">
   <div id="loadingPopup" class="popup" *ngSwitchCase="'loading'">
     <mat-spinner [diameter]="70"></mat-spinner>
-    <h3 class="w3-animate-opacity">{{popup.message}}</h3>
+    <h3 class="w3-animate-opacity">{{popup.config.message}}</h3>
   </div>
   <div id="errorPopup" class="popup w3-animate-top" *ngSwitchCase="'error'">
-    <div class="error-popup">{{popup.message}}</div>
-    <button class="dismiss" (click)="dismiss()">Dismiss</button>
+    <div class="error-popup">{{popup.config.message}}</div>
+    <button class="dismiss" (click)="popup.dismiss()">Dismiss</button>
   </div>
   <div id="choosePopup" class="popup w3-animate-top" *ngSwitchCase="'choose'">
     <div class="choose-popup">
-      <h3 class="header bg-secondary">{{popup.parent.name}}</h3>
+      <h3 class="header bg-secondary">{{popup.config.parent.name}}</h3>
       <div class="list">
-        <div class="item" *ngFor="let child of popup.parent.children" (click)="popup.select(child)"
-          [class]="{'selected': popup.selections.includes(child)}">
+        <div class="item" *ngFor="let child of popup.config.parent.children" (click)="popup.config.select(child)"
+          [class]="{'selected': popup.config.selections.includes(child)}">
           {{child.name}}
         </div>
       </div>
       <div class="footer">
-        <button *ngIf="popup.parent.parent" (click)="popup.up()">
+        <button *ngIf="popup.config.parent.parent" (click)="popup.config.up()">
           <i class="material-icons">arrow_upwards</i>
           Up
         </button>
-        <button *ngIf="popup.stackIndex > 0" (click)="popup.back()">
+        <button *ngIf="popup.config.stackIndex > 0" (click)="popup.config.back()">
           <i class="material-icons">arrow_left</i>
           Back
         </button>
       </div>
     </div>
     <div class="dismiss">
-      <button class="color-red" (click)="dismiss()">Cancel</button>
-      <button *ngIf="popup.selections.length > 0" class="w3-animate-opacity" (click)="popup.finish()">
+      <button class="color-red" (click)="popup.dismiss()">Cancel</button>
+      <button *ngIf="popup.config.selections.length > 0" class="w3-animate-opacity" (click)="popup.config.finish()">
         Finish
       </button>
     </div>
   </div>
   <div id="infoPopup" class="popup w3-animate-opacity" *ngSwitchCase="'info'">
     <div class="info-popup">
-      <div class="header" *ngIf="popup.requireConfirmation">
-        <button (click)="dismiss()">
+      <div class="header" *ngIf="popup.config.title">
+        <h2>{{popup.config.title}}</h2>
+        <button (click)="popup.dismiss()" *ngIf="!popup.config.requireConfirmation">
           <i class="material-icons">close</i>
           Close
         </button>
       </div>
       <div class="text">
-        <p *ngFor="let line of popup.message.split('\n')">{{line}}</p>
+        <p *ngFor="let line of popup.config.message.split('\n')">{{line}}</p>
       </div>
     </div>
     <div class="dismiss w3-animate-opacity">
-      <button class="color-red" (click)="dismiss()">
-        {{popup.requireConfirmation ? 'Cancel' : 'Close'}}
+      <button class="color-red" (click)="popup.dismiss(false)">
+        {{popup.config.requireConfirmation ? 'Cancel' : 'Close'}}
       </button>
-      <button *ngIf="popup.requireConfirmation" (click)="popup.confirm()">Confirm</button>
+      <button *ngIf="popup.config.requireConfirmation" (click)="popup.dismiss(true)">Confirm</button>
     </div>
   </div>
 </div>
