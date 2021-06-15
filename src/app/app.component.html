@@ -1,4 +1,4 @@
 <div class="page">
   <router-outlet></router-outlet>
-  <app-popup *ngIf="popupService.popup$ | async"></app-popup>
+  <app-popup *ngIf="(popupService.popup$ | async) as popup" [popup]="popup"></app-popup>
 </div>

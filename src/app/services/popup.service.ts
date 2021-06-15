@@ -1,8 +1,6 @@
 import { Injectable } from '@angular/core'
-import { Observable, of } from 'rxjs'
-import { catchError, map, switchMap } from 'rxjs/operators'
-
-import { UtilService } from './util.service'
+import { BehaviorSubject, Observable, of, Subject } from 'rxjs'
+import { catchError, filter, last, map, switchMap, take, tap } from 'rxjs/operators'
 
 export interface PopupConfig {
   type: 'error' | 'loading' | 'choose' | 'info'
@@ -37,54 +35,82 @@ export interface ChoosePopupConfig extends PopupConfig {
 export interface InfoPopupConfig extends PopupConfig {
   type: 'info'
   message: string
+  title?: string
   requireConfirmation?: boolean
   confirm?: () => void
+}
+
+export class Popup<TConfig extends PopupConfig, TValue> {
+  private isDismissed: boolean
+  readonly valueChanges = new Subject<TValue>()
+
+  constructor(
+    public config: TConfig,
+    private popup$: BehaviorSubject<Popup<any, any>>
+  ) { }
+
+  next(value?: TValue) {
+    this.valueChanges.next(value)
+  }
+
+  async dismiss(finalValue?: TValue): Promise<void> {
+    await of(this.isDismissed).pipe(
+      filter(isDimissed => !isDimissed),
+      map(() => {
+        this.next(finalValue)
+        this.valueChanges.complete()
+      }),
+      switchMap(() => this.popup$),
+      take(1),
+      map(currentPopup => {
+        if (currentPopup == this) this.popup$.next(null)
+      })
+    ).toPromise()
+  }
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class PopupService {
-  public popup$: Observable<PopupConfig>
+  public popup$ = new BehaviorSubject<Popup<any, any>>(null)
 
-  constructor(
-    private util: UtilService
-  ) {
-  }
-
-  newPopup(popup: PopupConfig | ErrorPopupConfig | InfoPopupConfig) {
-    if (!popup.message) popup.message = 'Something went wrong'
-    if ('error' in popup && popup.error) console.error(popup.error)
-    setTimeout(() => this.popup$ = of(popup), 0)
-  }
-
-  dismissPopup() {
-    this.popup$ = null
+  newPopup(config: InfoPopupConfig): Popup<InfoPopupConfig, boolean>
+  newPopup(config: PopupConfig): Popup<PopupConfig, void>
+  newPopup<TConfig extends PopupConfig, TValue>(config: TConfig): Popup<TConfig, TValue> {
+    if (!config.message) config.message = 'Something went wrong'
+    if ('error' in config) {
+      const error = (<ErrorPopupConfig>config).error
+      if (error) console.error(error)
+    }
+    const popup = new Popup<TConfig, TValue>(config, this.popup$)
+    setTimeout(() => this.popup$.next(popup))
+    return popup
   }
 
   performWithPopup<T>(message: string, obs: Observable<T>): Observable<T> {
-    return of(undefined).pipe(
-      // display the loading popup
-      map(() => this.newPopup({
+    // display the loading popup
+    return new Observable(sub => {
+      const popup = this.newPopup({
         type: 'loading',
         message: message
-      })),
-      // subscribe to the provided observable
-      switchMap(_ => obs),
-      // handle any errors
-      catchError(err => {
-        console.error(err)
-        this.newPopup({
-          type: 'error',
-          message: err.message || err
-        })
-        throw err // re-throw the error
-      }),
-      // dismiss the popup & produce the result
-      map(res => {
-        this.dismissPopup()
-        return res
       })
-    )
+      // subscribe to the provided observable
+      obs.pipe(
+        // handle any errors
+        catchError(err => {
+          console.error(err)
+          this.newPopup({
+            type: 'error',
+            message: err.message || err
+          })
+          throw err // re-throw the error
+        }),
+        // wait till last value is returned
+        last(),
+        // dismiss the popup & release the result
+        tap(() => popup.dismiss())
+      ).subscribe(sub)
+    })
   }
 }
