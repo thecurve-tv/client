@@ -2,18 +2,11 @@ import { Component, OnInit } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
 import { Apollo, QueryRef } from 'apollo-angular'
 import { Observable } from 'rxjs'
-import { filter, map } from 'rxjs/operators'
-import { getGameInfo, GetGameInfoQueryResult, GetGameInfoQueryVariables } from 'src/app/graphql/get-game-info.query'
+import { filter, map, shareReplay, tap } from 'rxjs/operators'
+import { getGameInfo, GetGameInfoQueryResult, GetGameInfoQueryVariables, mapGameInfoPointers, GameInfo } from 'src/app/graphql/get-game-info.query'
 import { PopupService } from 'src/app/services/popup.service'
 import { UtilService } from 'src/app/services/util.service'
 import { environment } from 'src/environments/environment'
-
-type Chat = Omit<GetGameInfoQueryResult['gameById']['chats'][0], 'players'> & {
-  players: GetGameInfoQueryResult['gameById']['players']
-}
-type GameInfo = Omit<GetGameInfoQueryResult['gameById'], 'chats'> & {
-  chats: Chat[]
-}
 
 @Component({
   selector: 'app-host',
@@ -45,27 +38,11 @@ export class HostComponent implements OnInit {
     this.gameInfoQuery = getGameInfo(this.apollo, { gameId }, 60 * 1000)
     this.loadingGameInfo = true
     this.gameInfo$ = this.gameInfoQuery.valueChanges.pipe(
-      map(({ loading, data }) => {
-        this.loadingGameInfo = loading
-        return { loading, data }
-      }),
+      tap(({ loading }) => this.loadingGameInfo = loading),
       filter(({ loading }) => !loading),
-      map(({ data }) => {
-        const result = data.gameById
-        const chats: Chat[] = result.chats.map(chat => {
-          const chatPlayerIds = new Set(chat.players.map(cp => cp._id))
-          const playersInChat = result.players.filter(player => chatPlayerIds.has(player._id))
-          return <Chat>{
-            ...chat,
-            players: playersInChat
-          }
-        })
-        const gameInfo: GameInfo = {
-          ...result,
-          chats
-        }
-        return gameInfo
-      })
+      map(({ data }) => data),
+      mapGameInfoPointers(),
+      shareReplay(1)
     )
   }
 

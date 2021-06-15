@@ -1,4 +1,4 @@
-<div class="host" *ngIf="(player$ | async) as player">
+<div class="host" *ngIf="(openPlayer$ | async) as player">
   <div class="photo-container">
     <img [src]="player.photo.uri" [alt]="player.photo.alt">
     <button class="btn-accent" (click)="onChangePhotoClick(player)">
@@ -9,7 +9,7 @@
   <div class="details" *ngIf="!bioForm">
     <div class="name">
       <h1 class="name-text">{{player.name}}</h1>
-      <button class="btn-inverse">
+      <button class="btn-inverse" (click)="openChatWithPlayer(player)">
         CHAT
       </button>
     </div>

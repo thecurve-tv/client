@@ -7,18 +7,18 @@
   </div>
   <div class="main">
     <div class="nav-bar">
-      <i class="material-icons" (click)="switchFrame('chat')"
+      <i class="material-icons" (click)="switchFrame({ type: 'chat' })"
         [class]="{'color-accent-darker': frame.type == 'chat'}">chat</i>
-      <i class="material-icons" (click)="switchFrame('bio')"
+      <i class="material-icons" (click)="switchFrame({ type: 'bio' })"
         [class]="{'color-accent-darker': frame.type == 'bio'}">person_outline</i>
-      <i class="material-icons" (click)="switchFrame('ranking')"
+      <i class="material-icons" (click)="switchFrame({ type: 'ranking' })"
         [class]="{'color-accent-darker': frame.type == 'ranking'}">equalizer</i>
     </div>
     <div class="frame" [ngSwitch]="frame.type">
       <app-chat *ngSwitchCase="'chat'" [frame$]="frame$" [gameInfo$]="gameInfo$" [accountId$]="accountId$">
       </app-chat>
       <app-bio *ngSwitchCase="'bio'" [frame$]="frame$" [gameInfo$]="gameInfo$" [accountId$]="accountId$"
-        (bioSavedEvent)="onGameInfoChanged()">
+        (gameInfoChangedEvent)="onGameInfoChanged()" (newFrameEvent)="switchFrame($event)">
       </app-bio>
     </div>
   </div>

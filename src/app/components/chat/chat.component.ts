@@ -1,7 +1,8 @@
 import { Component, Input, OnInit } from '@angular/core'
-import { Observable } from 'rxjs'
-import { map, take } from 'rxjs/operators'
-import { Chat, Frame, GameInfo } from 'src/app/components/room/room.component'
+import { combineLatest, Observable } from 'rxjs'
+import { tap } from 'rxjs/operators'
+import { Frame } from 'src/app/components/room/room.component'
+import { Chat, GameInfo } from 'src/app/graphql/get-game-info.query'
 
 @Component({
   selector: 'app-chat',
@@ -17,9 +18,8 @@ export class ChatComponent implements OnInit {
   constructor() { }
 
   ngOnInit(): void {
-    this.frame$.pipe(
-      take(1),
-      map(frame => this.chatId = frame.docId)
+    combineLatest([this.frame$, this.gameInfo$]).pipe(
+      tap(([frame]) => this.chatId = frame.docId)
     ).subscribe()
   }
 

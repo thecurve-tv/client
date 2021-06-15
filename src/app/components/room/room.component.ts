@@ -2,18 +2,10 @@ import { Component, OnInit } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
 import { Apollo, QueryRef } from 'apollo-angular'
 import { combineLatest, Observable, of, ReplaySubject } from 'rxjs'
-import { filter, map, shareReplay, switchMap, take } from 'rxjs/operators'
-import { getGameInfo, GetGameInfoQueryResult, GetGameInfoQueryVariables } from 'src/app/graphql/get-game-info.query'
+import { filter, map, shareReplay, switchMap, take, tap } from 'rxjs/operators'
+import { getGameInfo, GetGameInfoQueryResult, GetGameInfoQueryVariables, mapGameInfoPointers, GameInfo, Player } from 'src/app/graphql/get-game-info.query'
 import { Account } from 'src/app/models/account'
 import { ApiService } from 'src/app/services/api.service'
-
-export type Chat = Omit<GetGameInfoQueryResult['gameById']['chats'][0], 'players'> & {
-  players: GetGameInfoQueryResult['gameById']['players']
-}
-export type GameInfo = Omit<GetGameInfoQueryResult['gameById'], 'chats'> & {
-  chats: Chat[]
-}
-export type Player = GameInfo['players'][0]
 
 export interface Frame {
   type: 'bio' | 'chat' | 'ranking'
@@ -71,42 +63,14 @@ export class RoomComponent implements OnInit {
   }
 
   private setGameInfo$(gameId: string) {
+    if (this.gameInfoQuery) return
     this.gameInfoQuery = getGameInfo(this.apollo, { gameId }, 60 * 1000)
     this.loadingGameInfo = true
     this.gameInfo$ = this.gameInfoQuery.valueChanges.pipe(
-      map(({ loading, data }) => {
-        if (loading) this.loadingGameInfo = true
-        return { loading, data }
-      }),
+      tap(({ loading }) => this.loadingGameInfo = loading),
       filter(({ loading }) => !loading),
-      map(({ data }) => {
-        const result = data.gameById
-        const players = result.players.map(player => {
-          if (player.photo) return player
-          return { // avoid read-only restriction
-            ...player,
-            photo: {
-              _id: null,
-              uri: '/assets/default-profile-photo.png',
-              alt: 'Default profile photo'
-            }
-          }
-        })
-        const chats: Chat[] = result.chats.map(chat => {
-          const chatPlayerIds = new Set(chat.players.map(cp => cp._id))
-          const playersInChat = players.filter(player => chatPlayerIds.has(player._id))
-          return { // avoid read-only restriction
-            ...chat,
-            players: playersInChat
-          }
-        })
-        const gameInfo: GameInfo = { // avoid read-only restriction
-          ...result,
-          players,
-          chats
-        }
-        return gameInfo
-      }),
+      map(({ data }) => data),
+      mapGameInfoPointers(),
       shareReplay(1)
     )
   }
@@ -142,10 +106,12 @@ export class RoomComponent implements OnInit {
             type: isImgShortcut ? 'img' : 'text',
             text: chat.name,
             title: `Go to ${chat.name}`,
-            onClick: () => this.switchFrame('chat', chat._id)
+            onClick: () => this.switchFrame({ type: 'chat', docId: chat._id })
           }
           if (isImgShortcut) {
-            const otherParticipant = chat.players.find(player => player.account._id != loggedInUserAccountId)
+            const otherParticipant = chat.players
+              .map(p => gameInfo.playerById.get(p._id))
+              .find(p => p.account._id != loggedInUserAccountId)
             shortcut.src = otherParticipant.photo.uri
             shortcut.alt = `${otherParticipant.name}'s photo`
           }
@@ -170,7 +136,7 @@ export class RoomComponent implements OnInit {
               type: 'img',
               text: player.name,
               title: `View ${player.name}'s profile`,
-              onClick: () => this.switchFrame('bio', player._id),
+              onClick: () => this.switchFrame({ type: 'bio', docId: player._id }),
               src: player.photo.uri,
               alt: `${player.name}'s photo`,
               playerAccountId: player.account._id
@@ -185,19 +151,11 @@ export class RoomComponent implements OnInit {
     )
   }
 
-  async switchFrame(type: Frame['type'], docId?: string) {
+  async switchFrame(newFrame: Frame) {
     await this.frame$.pipe(
       take(1),
-      map(curFrame => {
-        if (curFrame.type == type && curFrame.docId == docId) {
-          return // nothing to change
-        }
-        const newFrame: Frame = {
-          type,
-          docId
-        }
-        this.frame$.next(newFrame)
-      })
+      filter(curFrame => curFrame.type != newFrame.type || curFrame.docId != newFrame.docId),
+      tap(() => this.frame$.next(newFrame))
     ).toPromise()
   }
 
