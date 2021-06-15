@@ -12,6 +12,9 @@ query GetGame($gameId: MongoID!) {
     maxPlayerCount
     endTime
     pausedTime
+    mainChat {
+      _id
+    }
   }
 }
 `
@@ -30,6 +33,9 @@ export interface GetGameQueryResult {
     maxPlayerCount: number
     endTime: number
     pausedTime: number
+    mainChat: {
+      _id: string
+    }
   }
 }
 
