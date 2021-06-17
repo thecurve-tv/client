@@ -3,11 +3,11 @@ import { FormControl, FormGroup, Validators } from '@angular/forms'
 import { Apollo } from 'apollo-angular'
 import { combineLatest, Observable, of, zip } from 'rxjs'
 import { delay, filter, map, switchMap, take, tap } from 'rxjs/operators'
-import { Frame } from 'src/app/components/room/room.component'
 import { createChat } from 'src/app/graphql/create-chat.mutation'
 import { Chat, GameInfo, Player } from 'src/app/graphql/get-game-info.query'
 import { updateBio } from 'src/app/graphql/update-bio.mutation'
 import { PopupService } from 'src/app/services/popup.service'
+import { Frame } from '../room/room.component'
 
 @Component({
   selector: 'app-bio',
