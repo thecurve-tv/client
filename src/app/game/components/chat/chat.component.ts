@@ -1,8 +1,8 @@
 import { Component, Input, OnInit } from '@angular/core'
 import { combineLatest, Observable } from 'rxjs'
 import { tap } from 'rxjs/operators'
-import { Frame } from 'src/app/components/room/room.component'
 import { Chat, GameInfo } from 'src/app/graphql/get-game-info.query'
+import { Frame } from '../room/room.component'
 
 @Component({
   selector: 'app-chat',
