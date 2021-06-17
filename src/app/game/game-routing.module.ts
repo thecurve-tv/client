@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core'
 import { RouterModule, Routes } from '@angular/router'
-import { GameActiveGuard } from '../guards/game-active.guard'
+import { GameActiveGuard } from './guards/game-active.guard'
 import { HostComponent } from './components/host/host.component'
 import { JoinComponent } from './components/join/join.component'
 import { RoomComponent } from './components/room/room.component'
