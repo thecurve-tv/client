@@ -8,7 +8,7 @@ import { AppRoutingModule } from 'src/app/app-routing.module'
 import { LandingComponent } from 'src/app/components/landing/landing.component'
 import { environment } from 'src/environments/environment'
 import { DashboardComponent } from 'src/app/components/dashboard/dashboard.component'
-import { GraphQLModule } from './graphql.module'
+import { GraphQLModule } from './graphql/graphql.module'
 import { ThecurveCommonModule } from './thecurve-common/thecurve-common.module'
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations'
 

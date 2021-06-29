@@ -3,17 +3,25 @@ import { ApolloClientOptions, ApolloLink, InMemoryCache, split } from '@apollo/c
 import { onError } from '@apollo/client/link/error'
 import { WebSocketLink } from '@apollo/client/link/ws'
 import { getMainDefinition } from '@apollo/client/utilities'
+import { AuthService } from '@auth0/auth0-angular'
 import { APOLLO_OPTIONS } from 'apollo-angular'
 import { HttpLink } from 'apollo-angular/http'
 import { OperationDefinitionNode } from 'graphql'
 import { environment } from 'src/environments/environment'
 
-export function createApolloFactory(httpLink: HttpLink): ApolloClientOptions<any> {
+export function createApolloFactory(httpLink: HttpLink, authService: AuthService): ApolloClientOptions<any> {
   const httpLinkHandler = httpLink.create({ uri: environment.GRAPHQL_URI })
   const wsLinkHandler = new WebSocketLink({
     uri: environment.GRAPHQL_WS_URI,
     options: {
-      reconnect: true
+      reconnect: true,
+      connectionParams: async () => {
+        const accessToken: string = await authService.getAccessTokenSilently().toPromise()
+        return {
+          authorization: `Bearer ${accessToken}`
+        }
+      },
+      reconnectionAttempts: 1
     },
   })
   const httpAndWsLink = split(
@@ -47,7 +55,7 @@ export function createApolloFactory(httpLink: HttpLink): ApolloClientOptions<any
     {
       provide: APOLLO_OPTIONS,
       useFactory: createApolloFactory,
-      deps: [HttpLink],
+      deps: [HttpLink, AuthService],
     },
   ],
 })
