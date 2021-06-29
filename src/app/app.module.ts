@@ -30,7 +30,11 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations'
       redirectUri: environment.AUTH0_REDIRECT_URI,
       httpInterceptor: {
         allowedList: [{
-          uriMatcher: uri => uri.startsWith(environment.API_HOST)
+          uriMatcher: uri => {
+            const isApiRequest = uri.startsWith(environment.API_HOST)
+            const isWebSocketRequest = uri.startsWith(environment.GRAPHQL_WS_URI)
+            return isApiRequest || isWebSocketRequest
+          }
         }]
       }
     }),
