@@ -1,1 +1,28 @@
-@use "../../../../styles/host"
+@use "../../../../styles/host";
+@use "../../../../styles/vars";
+
+:host {
+  display: flex;
+  flex-direction: column;
+}
+
+.messages {
+  display: flex;
+  flex-grow: 1;
+  margin-bottom: 1rem;
+  flex-direction: column;
+  justify-content: flex-end;
+
+  .message + .message {
+    margin-top: 1rem;
+  }
+}
+
+.send-box {
+  display: flex;
+  border-radius: 0.375rem;
+
+  input:focus {
+    border: 1px solid vars.$color-accent-darker;
+  }
+}

@@ -1,1 +1,11 @@
-<p>chat works! ({{chatId}})</p>
+<div class="messages">
+  <div class="message" *ngFor="let message of (messages$ | async); trackBy: chatMessageTrackBy">
+    {{message.sentTime | date:'shortTime'}} {{message.fromPlayer.name}}: {{message.message}}
+  </div>
+</div>
+<form class="send-box input" *ngIf="chatMessageForm" [formGroup]="chatMessageForm" (ngSubmit)="submitChatMessageForm()">
+  <input type="text" formControlName="message" [class]="{'invalid-input': !chatMessageForm.get('message').valid}">
+  <span class="color-red" *ngIf="!chatMessageForm.get('message').valid">
+    Messages must be between 1 and 500 characters
+  </span>
+</form>

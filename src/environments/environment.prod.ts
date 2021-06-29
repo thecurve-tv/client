@@ -10,5 +10,6 @@ export const environment = {
   AUTH0_API_AUDIENCE: 'https://api.thecurve.tv',
   API_HOST,
   CLIENT_URL,
-  GRAPHQL_URI: `${API_HOST}/graphql`
+  GRAPHQL_URI: `${API_HOST}/graphql`,
+  GRAPHQL_WS_URI: 'ws://api.thecurve.tv/graphql'
 }
