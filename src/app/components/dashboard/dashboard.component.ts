@@ -133,7 +133,7 @@ export class DashboardComponent implements OnInit {
           this.newGameForm = null
           return data.gameStart.game
         }),
-        switchMap(game => from(this.router.navigate(['game', game._id, 'host'])))
+        switchMap(game => from(this.router.navigate(['game', game._id, 'room'])))
       )
     ).toPromise()
   }
@@ -152,7 +152,7 @@ export class DashboardComponent implements OnInit {
           if (!isGameHost) return from(this.router.navigate(['game', gameId, 'room']))
           return resumeGame(this.apollo, { gameId }).pipe(
             delay(2000),
-            switchMap(() => from(this.router.navigate(['game', gameId, 'host'])))
+            switchMap(() => from(this.router.navigate(['game', gameId, 'room'])))
           )
         })
       )
