@@ -6,6 +6,8 @@ import { filter, map, shareReplay, switchMap, take, tap } from 'rxjs/operators'
 import { getGameInfo, GetGameInfoQueryResult, GetGameInfoQueryVariables, mapGameInfoPointers, GameInfo, Player } from 'src/app/graphql/get-game-info.query'
 import { Account } from 'src/app/models/account'
 import { ApiService } from 'src/app/services/api.service'
+import { PopupService } from 'src/app/services/popup.service'
+import { environment } from 'src/environments/environment'
 
 export interface Frame {
   type: 'bio' | 'chat' | 'ranking'
@@ -19,6 +21,7 @@ export interface Shortcut {
   src?: string
   alt?: string
   onClick: () => void
+  isActive: (frame: Frame) => boolean
 }
 
 @Component({
@@ -28,37 +31,39 @@ export interface Shortcut {
 })
 export class RoomComponent implements OnInit {
   private gameInfoQuery: QueryRef<GetGameInfoQueryResult, GetGameInfoQueryVariables>
-  private _accountId: Account['_id']
-  accountId$: Observable<Account['_id']>
+  account$: Observable<Account>
   frame$ = new ReplaySubject<Frame>(1)
   shortcuts$: Observable<Shortcut[]>
   gameInfo$: Observable<GameInfo>
+  /**
+   * Emits {@link GameInfo} if the logged in user is the host of the game.
+   * Emits `undefined` otherwise.
+   */
+  hostGameInfo$: Observable<GameInfo | undefined>
   loadingGameInfo: boolean
+  isHost: boolean
 
   constructor(
     private activatedRoute: ActivatedRoute,
     private apollo: Apollo,
-    private apiService: ApiService
+    private apiService: ApiService,
+    private popupService: PopupService
   ) { }
 
   ngOnInit() {
-    this.setAccountId$()
+    this.account$ = this.apiService.getAccountId().pipe(
+      shareReplay(1)
+    )
     this.activatedRoute.parent.params.subscribe(async params => {
       this.setGameInfo$(params.gameId)
+      this.hostGameInfo$ = combineLatest([this.account$, this.gameInfo$]).pipe(
+        map(([account, gameInfo]) => {
+          this.isHost = account._id == gameInfo.hostAccount._id
+          return this.isHost ? gameInfo : undefined
+        })
+      )
       await this.setupFrame()
       this.setShortcuts$()
-    })
-  }
-
-  private setAccountId$() {
-    this.accountId$ = new Observable(sub => {
-      of(this._accountId).pipe(
-        switchMap(cachedAccount => {
-          return cachedAccount ? of(cachedAccount) : this.apiService.getAccountId().pipe(
-            map(({ _id }) => this._accountId = _id)
-          )
-        })
-      ).subscribe(sub)
     })
   }
 
@@ -98,15 +103,16 @@ export class RoomComponent implements OnInit {
   }
 
   private getShortcutsForChatFrame(gameInfo: GameInfo): Observable<Shortcut[]> {
-    return this.accountId$.pipe(
-      map(loggedInUserAccountId => {
+    return this.account$.pipe(
+      map(({ _id: loggedInUserAccountId }) => {
         const shortcuts: (Shortcut & { playerCount: number })[] = gameInfo.chats.map(chat => {
           const isImgShortcut = chat.players.length == 2
           const shortcut: Shortcut = {
             type: isImgShortcut ? 'img' : 'text',
             text: chat.name,
             title: `Go to ${chat.name}`,
-            onClick: () => this.switchFrame({ type: 'chat', docId: chat._id })
+            onClick: () => this.switchFrame({ type: 'chat', docId: chat._id }),
+            isActive: frame => frame.type == 'chat' && frame.docId == chat._id
           }
           if (isImgShortcut) {
             const otherParticipant = chat.players
@@ -127,8 +133,8 @@ export class RoomComponent implements OnInit {
   }
 
   private getShortcutsForBioFrame(gameInfo: GameInfo): Observable<Shortcut[]> {
-    return this.accountId$.pipe(
-      map(loggedInUserAccountId => {
+    return this.account$.pipe(
+      map(({ _id: loggedInUserAccountId }) => {
         const shortcuts: (Shortcut & { playerAccountId: Player['account']['_id'] })[] = gameInfo.players
           .filter(player => player.account._id != gameInfo.hostAccount._id)
           .map(player => {
@@ -136,10 +142,11 @@ export class RoomComponent implements OnInit {
               type: 'img',
               text: player.name,
               title: `View ${player.name}'s profile`,
-              onClick: () => this.switchFrame({ type: 'bio', docId: player._id }),
               src: player.photo.uri,
               alt: `${player.name}'s photo`,
-              playerAccountId: player.account._id
+              playerAccountId: player.account._id,
+              onClick: () => this.switchFrame({ type: 'bio', docId: player._id }),
+              isActive: frame => frame.type == 'bio' && frame.docId == player._id
             }
           })
         return shortcuts.sort((a, b) => {
@@ -157,6 +164,14 @@ export class RoomComponent implements OnInit {
       filter(curFrame => curFrame.type != newFrame.type || curFrame.docId != newFrame.docId),
       tap(() => this.frame$.next(newFrame))
     ).toPromise()
+  }
+
+  onInviteClick(game: GameInfo) {
+    const joinUrl = `${environment.CLIENT_URL}/game/${game._id}/join`
+    this.popupService.newPopup({
+      type: 'info',
+      message: `Invite players by sending them this link\n${joinUrl}`
+    })
   }
 
   onGameInfoChanged() {

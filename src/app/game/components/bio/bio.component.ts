@@ -6,6 +6,7 @@ import { delay, filter, map, switchMap, take, tap } from 'rxjs/operators'
 import { createChat } from 'src/app/graphql/create-chat.mutation'
 import { Chat, GameInfo, Player } from 'src/app/graphql/get-game-info.query'
 import { updateBio } from 'src/app/graphql/update-bio.mutation'
+import { Account } from 'src/app/models/account'
 import { PopupService } from 'src/app/services/popup.service'
 import { Frame } from '../room/room.component'
 
@@ -19,7 +20,7 @@ export class BioComponent implements OnInit {
   private openPlayerId: Player['_id']
   @Input() frame$: Observable<Frame>
   @Input() gameInfo$: Observable<GameInfo>
-  @Input() accountId$: Observable<string>
+  @Input() account$: Observable<Account>
   @Output() newFrameEvent = new EventEmitter<Frame>()
   @Output() gameInfoChangedEvent = new EventEmitter<void>()
   openPlayer$: Observable<Player>
@@ -35,8 +36,8 @@ export class BioComponent implements OnInit {
       filter(([frame]) => frame.type == 'bio'),
       switchMap(([frame, gameInfo]) => {
         this.openPlayerId = frame.docId
-        return this.accountId$.pipe(
-          map(accountId => {
+        return this.account$.pipe(
+          map(({ _id: accountId }) => {
             this.loggedInAccountId = accountId
             return gameInfo.players
           })
@@ -94,9 +95,9 @@ export class BioComponent implements OnInit {
      * $- navigate
      * $- send gameInfo changed event
      */
-    await zip(this.accountId$, this.gameInfo$).pipe(
+    await zip(this.account$, this.gameInfo$).pipe(
       take(1),
-      switchMap(([accountId, gameInfo]) => {
+      switchMap(([{ _id: accountId }, gameInfo]) => {
         const requestingPlayer = gameInfo.players.find(p => p.account._id == accountId)
         if (!otherPlayer?._id || otherPlayer._id === requestingPlayer._id) {
           console.error('Invalid argument provided for otherPlayer. Got', otherPlayer)
