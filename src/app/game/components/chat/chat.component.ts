@@ -2,11 +2,12 @@ import { Component, Input, OnInit } from '@angular/core'
 import { FormControl, FormGroup, Validators } from '@angular/forms'
 import { FetchResult } from '@apollo/client/core'
 import { Apollo } from 'apollo-angular'
-import { combineLatest, Observable } from 'rxjs'
-import { map, switchMap, take, tap } from 'rxjs/operators'
+import { Observable, zip } from 'rxjs'
+import { filter, map, switchMap, take, tap } from 'rxjs/operators'
 import { ChatMessage, ChatMessagesSubscriptionResult, listenToChatMessages } from 'src/app/graphql/chat-messages.subscription'
-import { Chat, GameInfo, Player } from 'src/app/graphql/get-game-info.query'
+import { GameInfo, Player } from 'src/app/graphql/get-game-info.query'
 import { sendChatMessage } from 'src/app/graphql/send-chat-message.mutation'
+import { Account } from 'src/app/models/account'
 import { PopupService } from 'src/app/services/popup.service'
 import { Frame } from '../room/room.component'
 
@@ -23,8 +24,7 @@ export class ChatComponent implements OnInit {
   private _messages: PopulatedChatMessage[]
   @Input() frame$: Observable<Frame>
   @Input() gameInfo$: Observable<GameInfo>
-  @Input() accountId$: Observable<string>
-  chatId: Chat['_id']
+  @Input() account$: Observable<Account>
   messages$: Observable<PopulatedChatMessage[]>
   chatMessageForm: FormGroup
 
@@ -33,12 +33,13 @@ export class ChatComponent implements OnInit {
     private popupService: PopupService
   ) { }
 
-  ngOnInit(): void {
-    combineLatest([this.frame$, this.gameInfo$]).pipe(
-      tap(([frame]) => this.chatId = frame.docId)
-    ).subscribe()
+  async ngOnInit(): Promise<void> {
     this._messages = []
-    this.messages$ = listenToChatMessages(this.apollo, { chatId: this.chatId }).pipe(
+    this.messages$ = this.frame$.pipe(
+      switchMap(frame => {
+        this._messages.length = 0
+        return listenToChatMessages(this.apollo, { chatId: frame.docId })
+      }),
       switchMap(result => {
         return this.gameInfo$.pipe(
           take(1),
@@ -53,9 +54,19 @@ export class ChatComponent implements OnInit {
         return this._messages
       })
     )
-    this.chatMessageForm = new FormGroup({
-      message: new FormControl('', [Validators.required, Validators.minLength(1), Validators.maxLength(500)])
-    })
+    await this.setChatMessageForm()
+  }
+
+  private async setChatMessageForm(): Promise<void> {
+    await zip(this.account$, this.gameInfo$).pipe(
+      take(1),
+      filter(([account, gameInfo]) => account._id != gameInfo.hostAccount._id),
+      tap(_ => {
+        this.chatMessageForm = new FormGroup({
+          message: new FormControl('', [Validators.required, Validators.minLength(1), Validators.maxLength(500)])
+        })
+      })
+    ).toPromise()
   }
 
   /**
@@ -72,10 +83,15 @@ export class ChatComponent implements OnInit {
     const message: string = chatMessageControl.value
     await this.popupService.performWithPopup(
       'Sending message',
-      sendChatMessage(this.apollo, {
-        chatId: this.chatId,
-        message
-      })
+      this.frame$.pipe(
+        take(1),
+        switchMap(frame => {
+          return sendChatMessage(this.apollo, {
+            chatId: frame.docId,
+            message
+          })
+        })
+      )
     ).toPromise()
     chatMessageControl.setValue('')
   }

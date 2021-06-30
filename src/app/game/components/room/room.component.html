@@ -1,9 +1,15 @@
 <div class="content" *ngIf="(frame$ | async) as frame">
   <div class="shortcuts-bar" *ngIf="(shortcuts$ | async) as shortcuts">
-    <div class="shortcut" *ngFor="let shortcut of shortcuts" (click)="shortcut.onClick()" [title]="shortcut.title">
+    <div class="shortcut" *ngFor="let shortcut of shortcuts" (click)="shortcut.onClick()" [title]="shortcut.title"
+      [ngClass]="{'bg-secondary': shortcut.isActive(frame)}">
       <img *ngIf="shortcut.type == 'img'" [src]="shortcut.src" [alt]="shortcut.alt">
       {{shortcut.text}}
     </div>
+    <button *ngIf="(hostGameInfo$ | async) as game" class="btn-inverse invite" (click)="onInviteClick(game)"
+      [disabled]="game.players.length == game.maxPlayerCount">
+      <i class="material-icons">add</i>
+      Invite ({{game.maxPlayerCount - game.players.length}} left)
+    </button>
   </div>
   <div class="main">
     <div class="nav-bar">
@@ -15,9 +21,9 @@
         [class]="{'color-accent-darker': frame.type == 'ranking'}">equalizer</i>
     </div>
     <div class="frame" [ngSwitch]="frame.type">
-      <app-chat *ngSwitchCase="'chat'" [frame$]="frame$" [gameInfo$]="gameInfo$" [accountId$]="accountId$">
+      <app-chat *ngSwitchCase="'chat'" [frame$]="frame$" [gameInfo$]="gameInfo$" [account$]="account$">
       </app-chat>
-      <app-bio *ngSwitchCase="'bio'" [frame$]="frame$" [gameInfo$]="gameInfo$" [accountId$]="accountId$"
+      <app-bio *ngSwitchCase="'bio'" [frame$]="frame$" [gameInfo$]="gameInfo$" [account$]="account$"
         (gameInfoChangedEvent)="onGameInfoChanged()" (newFrameEvent)="switchFrame($event)">
       </app-bio>
     </div>

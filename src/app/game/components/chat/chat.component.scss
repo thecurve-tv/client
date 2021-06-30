@@ -6,6 +6,16 @@
   flex-direction: column;
 }
 
+.loading {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+
+  .mat-progress-spinner {
+    margin-right: 1rem;
+  }
+}
+
 .messages {
   display: flex;
   flex-grow: 1;
