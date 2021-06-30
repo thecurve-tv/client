@@ -106,7 +106,7 @@ export class RoomComponent implements OnInit {
     return this.account$.pipe(
       map(({ _id: loggedInUserAccountId }) => {
         const shortcuts: (Shortcut & { playerCount: number })[] = gameInfo.chats.map(chat => {
-          const isImgShortcut = chat.players.length == 2
+          const isImgShortcut = chat.players.length == 2 && chat._id != gameInfo.mainChat._id
           const shortcut: Shortcut = {
             type: isImgShortcut ? 'img' : 'text',
             text: chat.name,
@@ -161,7 +161,10 @@ export class RoomComponent implements OnInit {
   async switchFrame(newFrame: Frame) {
     await this.frame$.pipe(
       take(1),
-      filter(curFrame => curFrame.type != newFrame.type || curFrame.docId != newFrame.docId),
+      filter(curFrame => {
+        const frameIsIdentical = curFrame.type == newFrame.type && curFrame.docId == newFrame.docId
+        return !frameIsIdentical
+      }),
       tap(() => this.frame$.next(newFrame))
     ).toPromise()
   }
