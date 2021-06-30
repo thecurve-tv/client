@@ -5,15 +5,15 @@
       <img *ngIf="shortcut.type == 'img'" [src]="shortcut.src" [alt]="shortcut.alt">
       {{shortcut.text}}
     </div>
-    <button *ngIf="(hostGameInfo$ | async) as game" class="btn-inverse invite" (click)="onInviteClick(game)"
-      [disabled]="game.players.length == game.maxPlayerCount">
+    <button *ngIf="(hostGameInfo$ | async) as hostGame" class="btn-inverse invite" (click)="onInviteClick(hostGame)"
+      [disabled]="hostGame.players.length == hostGame.maxPlayerCount">
       <i class="material-icons">add</i>
-      Invite ({{game.maxPlayerCount - game.players.length}} left)
+      Invite ({{hostGame.maxPlayerCount - hostGame.players.length}} left)
     </button>
   </div>
   <div class="main">
-    <div class="nav-bar">
-      <i class="material-icons" (click)="switchFrame({ type: 'chat' })"
+    <div class="nav-bar" *ngIf="(gameInfo$ | async) as game">
+      <i class="material-icons" (click)="switchFrame({ type: 'chat', docId: game.mainChat._id })"
         [class]="{'color-accent-darker': frame.type == 'chat'}">chat</i>
       <i class="material-icons" (click)="switchFrame({ type: 'bio' })"
         [class]="{'color-accent-darker': frame.type == 'bio'}">person_outline</i>

@@ -1,6 +1,5 @@
 <div class="loading color-muted">
   <mat-spinner [diameter]="20"></mat-spinner>
-  Refreshing...
 </div>
 <div class="messages">
   <div class="message" *ngFor="let message of (messages$ | async); trackBy: chatMessageTrackBy">

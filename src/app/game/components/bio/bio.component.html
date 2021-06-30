@@ -1,25 +1,12 @@
 <div class="host" *ngIf="(openPlayer$ | async) as player">
   <div class="photo-container">
     <img [src]="player.photo.uri" [alt]="player.photo.alt">
-    <button class="btn-accent" (click)="onChangePhotoClick(player)">
+    <button class="btn-accent" *ngIf="!playerIsHost" (click)="onChangePhotoClick(player)">
       <i class="material-icons">edit</i>
       CHANGE
     </button>
   </div>
-  <div class="details" *ngIf="!bioForm">
-    <div class="name">
-      <h1 class="name-text">{{player.name}}</h1>
-      <button class="btn-inverse" (click)="openChatWithPlayer(player)">
-        CHAT
-      </button>
-    </div>
-    <ul class="bullets">
-      <li>{{player.age}}</li>
-      <li>{{player.job}}</li>
-    </ul>
-    <p class="bio">{{player.bio}}</p>
-  </div>
-  <form class="details" *ngIf="bioForm" [formGroup]="bioForm" (ngSubmit)="submitBioForm(player)">
+  <form class="details" *ngIf="bioForm && !playerIsHost" [formGroup]="bioForm" (ngSubmit)="submitBioForm(player)">
     <div class="name">
       <label class="name-text">
         <input type="text" formControlName="name" [class]="{'invalid-input': !bioForm.get('name').valid}">
@@ -58,4 +45,17 @@
       </label>
     </div>
   </form>
+  <div class="details" *ngIf="!bioForm">
+    <div class="name">
+      <h1 class="name-text">{{player.name}}</h1>
+      <button class="btn-inverse" *ngIf="!playerIsHost" (click)="openChatWithPlayer(player)">
+        CHAT
+      </button>
+    </div>
+    <ul class="bullets">
+      <li>{{player.age}}</li>
+      <li>{{player.job}}</li>
+    </ul>
+    <p class="bio">{{player.bio}}</p>
+  </div>
 </div>

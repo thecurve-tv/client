@@ -17,7 +17,6 @@ import { Frame } from '../room/room.component'
 })
 export class BioComponent implements OnInit {
   private loggedInAccountId: string
-  private openPlayerId: Player['_id']
   @Input() frame$: Observable<Frame>
   @Input() gameInfo$: Observable<GameInfo>
   @Input() account$: Observable<Account>
@@ -25,31 +24,42 @@ export class BioComponent implements OnInit {
   @Output() gameInfoChangedEvent = new EventEmitter<void>()
   openPlayer$: Observable<Player>
   bioForm: FormGroup
+  playerIsHost: boolean
 
   constructor(
     private popupService: PopupService,
     private apollo: Apollo
   ) { }
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
+    await this.setOpenPlayer$()
+  }
+
+  private async setOpenPlayer$() {
+    if (this.openPlayer$) return
     this.openPlayer$ = combineLatest([this.frame$, this.gameInfo$]).pipe(
       filter(([frame]) => frame.type == 'bio'),
-      switchMap(([frame, gameInfo]) => {
-        this.openPlayerId = frame.docId
-        return this.account$.pipe(
-          map(({ _id: accountId }) => {
-            this.loggedInAccountId = accountId
-            return gameInfo.players
-          })
+      switchMap(frameAndGameInfo => {
+        return this.account$.pipe( // refetch the logged in player's account
+          tap(({ _id: accountId }) => this.loggedInAccountId = accountId),
+          map(_ => frameAndGameInfo)
         )
       }),
-      map(players => players.find(player => {
-        if (this.openPlayerId) return player._id == this.openPlayerId
-        return player.account._id == this.loggedInAccountId
-      })),
-      map(player => {
-        this.setBioForm(player)
-        return player
+      map(([frame, gameInfo]) => {
+        let openPlayerId: string
+        this.playerIsHost = this.loggedInAccountId == gameInfo.hostAccount._id
+        if (this.playerIsHost) {
+          openPlayerId = gameInfo.players.find(p => p.account._id != gameInfo.hostAccount._id)?._id
+        } else {
+          openPlayerId = frame.docId || this.loggedInAccountId
+        }
+        return <[string, GameInfo]>[openPlayerId, gameInfo]
+      }),
+      filter(([openPlayerId]) => !!openPlayerId),
+      map(([openPlayerId, gameInfo]) => {
+        const openPlayer = gameInfo.players.find(player => player._id == openPlayerId)
+        this.setBioForm(openPlayer)
+        return openPlayer
       })
     )
   }
