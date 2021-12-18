@@ -42,8 +42,9 @@ jobs:
       - name: Checkout server 🔗
         uses: actions/checkout@v2
         with:
-          repository: 'thecurve-tv/server'
-          path: '.server'
+          repository: thecurve-tv/server
+          path: .server
+          ref: main
       - run: npm ci
       - run: cd .server && npm ci
       - name: Run end-to-end tests 🧪✔
