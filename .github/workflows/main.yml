@@ -44,7 +44,7 @@ jobs:
         with:
           repository: thecurve-tv/server
           path: .server
-          ref: main
+          token: ${{ secrets.GH_ORG_PAT }}
       - run: npm ci
       - run: cd .server && npm ci
       - name: Run end-to-end tests 🧪✔
