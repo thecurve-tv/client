@@ -10,7 +10,10 @@
     "format": "prettier --write .",
     "e2e": "ng e2e",
     "cypress:open": "cypress open",
-    "cypress:run": "cypress run"
+    "cypress:run": "cypress run",
+    "preci:serve": "ng build",
+    "ci:serve": "angular-http-server --path ./dist/thecurve -p 4200",
+    "ci:e2e": "start-server-and-test ci:serve http://localhost:4200 cypress:run"
   },
   "private": true,
   "dependencies": {
@@ -42,6 +45,7 @@
     "@cypress/schematic": "^1.6.0",
     "@types/jasmine": "~3.6.0",
     "@types/node": "^12.11.1",
+    "angular-http-server": "^1.10.0",
     "codelyzer": "^6.0.0",
     "cypress": "latest",
     "jasmine-core": "~3.6.0",
@@ -52,6 +56,7 @@
     "karma-jasmine": "~4.0.0",
     "karma-jasmine-html-reporter": "^1.5.0",
     "prettier": "^2.3.1",
+    "start-server-and-test": "^1.14.0",
     "ts-node": "~8.3.0",
     "tslint": "~6.1.0",
     "typescript": "~4.2.4"
