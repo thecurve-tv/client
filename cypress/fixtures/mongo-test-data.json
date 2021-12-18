@@ -1,0 +1,24 @@
+{
+  "accounts": [
+    {
+      "_id": "61bcd4891ebdaeee02eb0288",
+      "auth0Id": "auth0|61bbdb36d27de7006aba0343",
+      "email": "client_e2e@thecurve.tv"
+    },
+    {
+      "_id": "61bd51b3c418923bb7d87fce",
+      "auth0Id": "auth0|player-2",
+      "email": "client_e2e-2@thecurve.tv"
+    },
+    {
+      "_id": "61bd6f6ac418923bb7d87fd0",
+      "auth0Id": "auth0|player-3",
+      "email": "client_e2e-3@thecurve.tv"
+    },
+    {
+      "_id": "61be1e74437fcc9382c0bc76",
+      "auth0Id": "auth0|player-4",
+      "email": "client_e2e-4@thecurve.tv"
+    }
+  ]
+}

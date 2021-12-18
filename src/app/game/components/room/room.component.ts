@@ -52,7 +52,7 @@ export class RoomComponent implements OnInit {
 
   ngOnInit() {
     this.account$ = this.apiService.getAccountId().pipe(
-      shareReplay(1)
+      shareReplay({bufferSize: 1, refCount: true})
     )
     this.activatedRoute.parent.params.subscribe(async params => {
       this.setGameInfo$(params.gameId)
@@ -76,7 +76,7 @@ export class RoomComponent implements OnInit {
       filter(({ loading }) => !loading),
       map(({ data }) => data),
       mapGameInfoPointers(),
-      shareReplay(1)
+      shareReplay({bufferSize: 1, refCount: true})
     )
   }
 

@@ -31,6 +31,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations'
       httpInterceptor: {
         allowedList: [{
           uriMatcher: uri => {
+            if (environment.test) return false // dont try to add tokens when testing
             const isApiRequest = uri.startsWith(environment.API_HOST)
             const isWebSocketRequest = uri.startsWith(environment.GRAPHQL_WS_URI)
             return isApiRequest || isWebSocketRequest

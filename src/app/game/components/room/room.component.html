@@ -14,11 +14,17 @@
   <div class="main">
     <div class="nav-bar" *ngIf="(gameInfo$ | async) as game">
       <i class="material-icons" (click)="switchFrame({ type: 'chat', docId: game.mainChat._id })"
-        [class]="{'color-accent-darker': frame.type == 'chat'}">chat</i>
+        [class]="{'color-accent-darker': frame.type == 'chat'}" e2e-id="btnSwitchToChatFrame">
+        chat
+      </i>
       <i class="material-icons" (click)="switchFrame({ type: 'bio' })"
-        [class]="{'color-accent-darker': frame.type == 'bio'}">person_outline</i>
+        [class]="{'color-accent-darker': frame.type == 'bio'}" e2e-id="btnSwitchToBioFrame">
+        person_outline
+      </i>
       <i class="material-icons" (click)="switchFrame({ type: 'ranking' })"
-        [class]="{'color-accent-darker': frame.type == 'ranking'}">equalizer</i>
+        [class]="{'color-accent-darker': frame.type == 'ranking'}">
+        equalizer
+      </i>
     </div>
     <div class="frame" [ngSwitch]="frame.type">
       <app-chat *ngSwitchCase="'chat'" [frame$]="frame$" [gameInfo$]="gameInfo$" [account$]="account$">

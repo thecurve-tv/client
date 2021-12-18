@@ -11,7 +11,7 @@
           [title]="isHostingAGame ? 'You may only host 1 game at a time' : ''">
           NEW
         </button>
-        <button class="new-game">JOIN</button>
+        <button class="join-game">JOIN</button>
       </div>
     </div>
     <div class="vertical-divider"></div>
@@ -37,7 +37,7 @@
               play_arrow
             </button>
             <button class="games-row-bubble-actions-stop material-icons"
-              *ngIf="activePlayerGame.game.hostAccount._id == _account._id"
+              *ngIf="activePlayerGame.game.hostAccount._id == account._id"
               (click)="stopGame(activePlayerGame.game._id)" title="Stop game">
               stop
             </button>
@@ -71,7 +71,7 @@
         </span>
         <div class="label-floor"></div>
       </label>
-      <button class="btn-accent" type="submit" [disabled]="!newGameForm.valid">
+      <button class="btn-accent" type="submit" [disabled]="!newGameForm.valid" e2e-id="btnStartGame">
         Start game
       </button>
       <span class="color-red" *ngIf="!newGameForm.valid">

@@ -98,7 +98,7 @@
         font-weight: 600;
       }
 
-      .new-game {
+      button {
         display: flex;
         width: 6rem;
         height: 6rem;
@@ -110,13 +110,13 @@
         cursor: pointer;
       }
 
-      .new-game:disabled {
+      button:disabled {
         border: 1px solid vars.$color-purple;
         background-color: vars.$bg-muted;
         color: vars.$color-muted;
       }
 
-      .new-game + .new-game {
+      button + button {
         margin-left: 1rem;
       }
     }

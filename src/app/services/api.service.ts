@@ -37,6 +37,7 @@ export class ApiService {
   }
 
   public getAccountId(): Observable<Account> {
+    if (environment.test) return of(environment.DEV_ACCOUNT)
     return this.http.get<Account>(`${environment.API_HOST}/accounts`).pipe(
       catchError(this.handleError<Account>())
     );

@@ -85,6 +85,14 @@
                   "maximumError": "10kb"
                 }
               ]
+            },
+            "test": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.test.ts"
+                }
+              ]
             }
           }
         },
@@ -96,6 +104,9 @@
           "configurations": {
             "production": {
               "browserTarget": "thecurve:build:production"
+            },
+            "test": {
+              "browserTarget": "thecurve:build:test"
             }
           }
         },
@@ -143,9 +154,13 @@
             "watch": true,
             "headless": false
           },
+          "defaultConfiguration": "test",
           "configurations": {
             "production": {
               "devServerTarget": "thecurve:serve:production"
+            },
+            "test": {
+              "devServerTarget": "thecurve:serve:test"
             }
           }
         },

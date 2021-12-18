@@ -51,7 +51,9 @@
       <button class="color-red" (click)="popup.dismiss(false)">
         {{popup.config.requireConfirmation ? 'Cancel' : 'Close'}}
       </button>
-      <button *ngIf="popup.config.requireConfirmation" (click)="popup.dismiss(true)">Confirm</button>
+      <button *ngIf="popup.config.requireConfirmation" (click)="popup.dismiss(true)" e2e-id="btnPopupConfirm">
+        Confirm
+      </button>
     </div>
   </div>
 </div>

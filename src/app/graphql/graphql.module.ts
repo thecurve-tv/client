@@ -38,7 +38,7 @@ export function createApolloFactory(httpLink: HttpLink, authService: AuthService
     if (graphQLErrors) {
       graphQLErrors.map(({ message, locations, path }) =>
         console.error(
-          `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`,
+          `[GraphQL error]: Message: ${message}, Location: ${JSON.stringify(locations, null, 2)}, Path: ${path}`,
         ),
       )
     }
