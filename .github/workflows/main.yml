@@ -48,5 +48,5 @@ jobs:
       - run: npm ci
       - run: cd .server && npm ci
       - name: Run end-to-end tests 🧪✔
-        run: npx ts-node -T test/run-tests
+        run: cd test && npx ts-node -T run-tests
 
