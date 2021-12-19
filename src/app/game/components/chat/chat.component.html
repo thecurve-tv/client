@@ -1,7 +1,7 @@
 <div class="loading color-muted">
   <mat-spinner [diameter]="20"></mat-spinner>
 </div>
-<div class="messages">
+<div class="messages" *ngIf="(frame$ | async) as frame" [attr.e2e_chat_id]="frame.docId">
   <div class="message" *ngFor="let message of (messages$ | async); trackBy: chatMessageTrackBy">
     {{message.sentTime | date:'shortTime'}} {{message.fromPlayer.name}}: {{message.message}}
   </div>

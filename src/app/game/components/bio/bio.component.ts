@@ -51,13 +51,16 @@ export class BioComponent implements OnInit {
         if (this.playerIsHost) {
           openPlayerId = gameInfo.players.find(p => p.account._id != gameInfo.hostAccount._id)?._id
         } else {
-          openPlayerId = frame.docId || this.loggedInAccountId
+          openPlayerId = frame.docId
         }
         return <[string, GameInfo]>[openPlayerId, gameInfo]
       }),
       filter(([openPlayerId]) => !!openPlayerId),
       map(([openPlayerId, gameInfo]) => {
-        const openPlayer = gameInfo.players.find(player => player._id == openPlayerId)
+        let openPlayer = gameInfo.players.find(player => {
+          if (openPlayerId) return player._id == openPlayerId
+          return player.account._id == this.loggedInAccountId
+        })
         this.setBioForm(openPlayer)
         return openPlayer
       })

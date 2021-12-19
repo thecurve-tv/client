@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common'
-import { Component, OnInit } from '@angular/core'
+import { Component, Inject, LOCALE_ID, OnInit } from '@angular/core'
 import { FormControl, FormGroup, Validators } from '@angular/forms'
 import { Router } from '@angular/router'
 import { Apollo, QueryRef } from 'apollo-angular'
@@ -22,6 +22,7 @@ type RecentPlayerGame = GetJoinedGamesQueryResult['myAccount']['players'][0]
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit {
+  private datePipe: DatePipe
   private gamesJoinedQuery: QueryRef<GetJoinedGamesQueryResult, GetJoinedGamesQueryVariables>
   _account: Account
   account$: Observable<Account>
@@ -34,11 +35,13 @@ export class DashboardComponent implements OnInit {
   constructor(
     private apiService: ApiService,
     private apollo: Apollo,
-    private datePipe: DatePipe,
     private popupService: PopupService,
     private router: Router,
-    public util: UtilService
-  ) { }
+    public util: UtilService,
+    @Inject(LOCALE_ID) locale: string
+  ) {
+    this.datePipe = new DatePipe(locale)
+  }
 
   async ngOnInit() {
     this.account$ = new Observable(sub => {
@@ -87,7 +90,7 @@ export class DashboardComponent implements OnInit {
         this.isHostingAGame = !!recentGames.find(({ game }) => isGameActive(game) && game.hostAccount._id == accountId)
         return recentGames
       }),
-      shareReplay(1) // share the query result with however many subscribers there are
+      shareReplay({bufferSize: 1, refCount: true}) // share the query result with however many subscribers there are
     )
     this.activePlayerGames$ = recentPlayerGames$.pipe(
       map(playerGames => playerGames.filter(({ game }) => isGameActive(game)))
