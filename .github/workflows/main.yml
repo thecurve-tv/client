@@ -19,6 +19,9 @@ jobs:
     continue-on-error: true
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14'
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
       - name: Install NPM packages 📦
@@ -30,23 +33,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14'
       - uses: actions/checkout@v2
       - name: Install NPM packages 📦
         run: npm ci
       - name: Build app 🛠
         run: npm run build
-  e2e:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Checkout server 🔗
-        uses: actions/checkout@v2
-        with:
-          repository: thecurve-tv/server
-          path: .server
-          token: ${{ secrets.GH_ORG_PAT }}
-      - run: npm ci
-      - run: cd .server && npm ci
-      - name: Run end-to-end tests 🧪✔
-        run: cd test && npx ts-node -T run-tests
-
