@@ -5,17 +5,19 @@ import { ChatComponent } from './components/chat/chat.component'
 import { JoinComponent } from './components/join/join.component'
 import { RoomComponent } from './components/room/room.component'
 import { GameRoutingModule } from './game-routing.module'
+import { RankingComponent } from './components/ranking/ranking.component'
 
 @NgModule({
   declarations: [
     JoinComponent,
     RoomComponent,
     BioComponent,
-    ChatComponent
+    ChatComponent,
+    RankingComponent,
   ],
   imports: [
     ThecurveCommonModule,
-    GameRoutingModule
-  ]
+    GameRoutingModule,
+  ],
 })
 export class GameModule { }

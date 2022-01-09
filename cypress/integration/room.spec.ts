@@ -41,7 +41,7 @@ describe('Game Room', () => {
           }
         }
       }`,
-      account: player1AkaHost.account
+      account: player1AkaHost.account,
     }).then(({ body }) => {
       gameId = body.data.gameStart.game._id
       player1AkaHost._id = body.data.gameStart.hostPlayer._id
@@ -60,7 +60,7 @@ describe('Game Room', () => {
               }
             }
           }`,
-          account: player.account
+          account: player.account,
         }).then(({ body }) => {
           player._id = body.data.gameJoin.player._id
         })
@@ -151,6 +151,42 @@ describe('Game Room', () => {
     it('allows global chat', () => testSendingAndReceivingMessages(chats.main._id))
   })
 
+  describe('Ranking', () => {
+    beforeEach(() => {
+      cy.execGraphql({
+        query: `mutation {
+          rankingStart(
+            game: "${gameId}"
+          ) {
+            _id
+          }
+        }`,
+        account: player1AkaHost.account,
+      }).then(({ body: { errors } }) => {
+        expect(errors, JSON.stringify(errors, null, 2)).equal(undefined)
+      }).then(() => cy.get('[e2e-id="btnSwitchToRankingFrame"]').click())
+    })
+
+    it('works', () => {
+      cy.get('.rating').should('have.length', 1) // ratings are submitted 1 by 1
+      // can only rate p3 & p4 (there's only 1st & 2nd place)
+      // select p3 for position 2
+      cy.get('.rating.next .position').should('contain', 2)
+      cy.get('.player').contains(player3.name).click()
+      cy.get('.rating').should('have.length', 2)
+      cy.get('.rating.completed .name')
+        .should('have.length', 1)
+        .should('contain', player3.name)
+        // select p4 for position 1
+      cy.get('.rating.next .position').should('contain', 1)
+      cy.get('.player').contains(player4.name).click()
+      cy.contains('Submitting your ratings').should('exist') // send ratings once done
+      cy.get('.rating').should('have.length', 2)
+      cy.get('.rating.next').should('not.exist')
+      cy.get('.rating.completed').should('have.length', 2)
+    })
+  })
+
   function testSendingAndReceivingMessages(chatId: string) {
     cy.wait(chatCoolDownInterval)
     cy.get('[formControlName="message"]').type('Hii\n')
@@ -165,10 +201,9 @@ describe('Game Room', () => {
             sentTime
           }
         }`,
-      account: player3.account
-    }).then(({ body }) => {
-      if (body.errors) console.error(body.errors)
-      expect(body.errors).to.be.undefined
+      account: player3.account,
+    }).then(({ body: {errors} }) => {
+      expect(errors, JSON.stringify(errors, null, 2)).equal(undefined)
       cy.get('.message').contains('Hello from p3!').should('exist')
     })
   }

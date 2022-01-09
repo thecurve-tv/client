@@ -1,0 +1,25 @@
+<div class="main" *ngVar="(ranking$ | async) as ranking">
+  <h1 *ngIf="ranking">Ranking {{numRankings}}</h1>
+  <h1 *ngIf="!ranking">There is no ranking right now</h1>
+  <button class="start btn-primary" *ngIf="canStartRanking" (click)="startRanking()" e2e-id="btnStartRanking">
+    Start one
+  </button>
+  <div class="ratings" *ngIf="ranking" [e2e-data]="ranking._id">
+    <div class="bg-secondary rating next" *ngIf="(nextRating$ | async) as rating">
+      <span class="position">{{rating.position}}</span>
+      <span class="material-icons bubble">edit</span>
+      <span class="name">Select a player on the right</span>
+    </div>
+    <div class="bg-secondary rating completed" *ngFor="let rating of (completedRatings$ | async)">
+      <span class="position">{{rating.position}}</span>
+      <img class="bubble" [src]="rating.player.photo.uri" [alt]="rating.player.photo.alt">
+      <span class="name">{{rating.player.name}}</span>
+    </div>
+  </div>
+</div>
+<div class="players">
+  <div class="player" *ngFor="let player of (players$ | async)" (click)="selectPlayer(player)">
+    <img [src]="player.photo.uri" [alt]="player.photo.alt">
+    {{player.name}}
+  </div>
+</div>
