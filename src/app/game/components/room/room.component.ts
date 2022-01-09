@@ -27,7 +27,7 @@ export interface Shortcut {
 @Component({
   selector: 'app-room',
   templateUrl: './room.component.html',
-  styleUrls: ['./room.component.scss']
+  styleUrls: [ './room.component.scss' ],
 })
 export class RoomComponent implements OnInit {
   private gameInfoQuery: QueryRef<GetGameInfoQueryResult, GetGameInfoQueryVariables>
@@ -47,20 +47,20 @@ export class RoomComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private apollo: Apollo,
     private apiService: ApiService,
-    private popupService: PopupService
+    private popupService: PopupService,
   ) { }
 
   ngOnInit() {
     this.account$ = this.apiService.getAccountId().pipe(
-      shareReplay({bufferSize: 1, refCount: true})
+      shareReplay({ bufferSize: 1, refCount: true }),
     )
     this.activatedRoute.parent.params.subscribe(async params => {
       this.setGameInfo$(params.gameId)
-      this.hostGameInfo$ = combineLatest([this.account$, this.gameInfo$]).pipe(
-        map(([account, gameInfo]) => {
+      this.hostGameInfo$ = combineLatest([ this.account$, this.gameInfo$ ]).pipe(
+        map(([ account, gameInfo ]) => {
           this.isHost = account._id == gameInfo.hostAccount._id
           return this.isHost ? gameInfo : undefined
-        })
+        }),
       )
       await this.setupFrame()
       this.setShortcuts$()
@@ -76,7 +76,7 @@ export class RoomComponent implements OnInit {
       filter(({ loading }) => !loading),
       map(({ data }) => data),
       mapGameInfoPointers(),
-      shareReplay({bufferSize: 1, refCount: true})
+      shareReplay({ bufferSize: 1, refCount: true }),
     )
   }
 
@@ -86,19 +86,19 @@ export class RoomComponent implements OnInit {
       map(gameInfo => {
         this.frame$.next({
           type: 'chat',
-          docId: gameInfo.mainChat._id
+          docId: gameInfo.mainChat._id,
         })
-      })
+      }),
     ).toPromise()
   }
 
   private setShortcuts$() {
-    this.shortcuts$ = combineLatest([this.frame$, this.gameInfo$]).pipe(
-      switchMap(([frame, gameInfo]) => {
+    this.shortcuts$ = combineLatest([ this.frame$, this.gameInfo$ ]).pipe(
+      switchMap(([ frame, gameInfo ]) => {
         if (frame.type == 'chat') return this.getShortcutsForChatFrame(gameInfo)
         if (frame.type == 'bio') return this.getShortcutsForBioFrame(gameInfo)
         return of(undefined)
-      })
+      }),
     )
   }
 
@@ -112,7 +112,7 @@ export class RoomComponent implements OnInit {
             text: chat.name,
             title: `Go to ${chat.name}`,
             onClick: () => this.switchFrame({ type: 'chat', docId: chat._id }),
-            isActive: frame => frame.type == 'chat' && frame.docId == chat._id
+            isActive: frame => frame.type == 'chat' && frame.docId == chat._id,
           }
           if (isImgShortcut) {
             const otherParticipant = chat.players
@@ -128,7 +128,7 @@ export class RoomComponent implements OnInit {
           if (b.playerCount > a.playerCount) return 1
           return a.text.localeCompare(b.text)
         })
-      })
+      }),
     )
   }
 
@@ -146,7 +146,7 @@ export class RoomComponent implements OnInit {
               alt: `${player.name}'s photo`,
               playerAccountId: player.account._id,
               onClick: () => this.switchFrame({ type: 'bio', docId: player._id }),
-              isActive: frame => frame.type == 'bio' && frame.docId == player._id
+              isActive: frame => frame.type == 'bio' && frame.docId == player._id,
             }
           })
         return shortcuts.sort((a, b) => {
@@ -154,7 +154,7 @@ export class RoomComponent implements OnInit {
           if (b.playerAccountId == loggedInUserAccountId) return 1
           return a.text.localeCompare(b.text)
         })
-      })
+      }),
     )
   }
 
@@ -165,7 +165,7 @@ export class RoomComponent implements OnInit {
         const frameIsIdentical = curFrame.type == newFrame.type && curFrame.docId == newFrame.docId
         return !frameIsIdentical
       }),
-      tap(() => this.frame$.next(newFrame))
+      tap(() => this.frame$.next(newFrame)),
     ).toPromise()
   }
 
@@ -173,11 +173,11 @@ export class RoomComponent implements OnInit {
     const joinUrl = `${environment.CLIENT_URL}/game/${game._id}/join`
     this.popupService.newPopup({
       type: 'info',
-      message: `Invite players by sending them this link\n${joinUrl}`
+      message: `Invite players by sending them this link\n${joinUrl}`,
     })
   }
 
-  onGameInfoChanged() {
+  refetchGameInfo() {
     this.gameInfoQuery.refetch()
   }
 

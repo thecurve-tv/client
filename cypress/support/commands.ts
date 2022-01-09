@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-namespace */
 // ***********************************************
 // This example namespace declaration will help
 // with Intellisense and code completion in your
@@ -42,9 +44,10 @@
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
 declare namespace Cypress {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   interface Chainable<Subject> {
     clearGames(): Chainable<Response<any>>
-    execGraphql(options: { query: string, account?: {} }): Chainable<Response<any>>
+    execGraphql(options: { query: string, account?: Record<string, unknown> }): Chainable<Response<any>>
   }
 }
 
@@ -52,7 +55,7 @@ Cypress.Commands.add('clearGames', () => {
   return cy.request({
     method: 'POST',
     url: `${Cypress.env('api_host')}/_test/clearGames`,
-    body: { accountIds: ['61bcd4891ebdaeee02eb0288', '61bd51b3c418923bb7d87fce'] }
+    body: { accountIds: [ '61bcd4891ebdaeee02eb0288', '61bd51b3c418923bb7d87fce' ] },
   })
 })
 Cypress.Commands.add('execGraphql', ({ query, account }) => {
@@ -61,9 +64,9 @@ Cypress.Commands.add('execGraphql', ({ query, account }) => {
     url: `${Cypress.env('api_host')}/_test/execGraphql`,
     body: {
       request: {
-        query
+        query,
       },
-      account
-    }
+      account,
+    },
   })
 })

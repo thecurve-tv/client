@@ -22,7 +22,7 @@
         person_outline
       </i>
       <i class="material-icons" (click)="switchFrame({ type: 'ranking' })"
-        [class]="{'color-accent-darker': frame.type == 'ranking'}">
+        [class]="{'color-accent-darker': frame.type == 'ranking'}" e2e-id="btnSwitchToRankingFrame">
         equalizer
       </i>
     </div>
@@ -30,8 +30,11 @@
       <app-chat *ngSwitchCase="'chat'" [frame$]="frame$" [gameInfo$]="gameInfo$" [account$]="account$">
       </app-chat>
       <app-bio *ngSwitchCase="'bio'" [frame$]="frame$" [gameInfo$]="gameInfo$" [account$]="account$"
-        (gameInfoChangedEvent)="onGameInfoChanged()" (newFrameEvent)="switchFrame($event)">
+        (gameInfoChangedEvent)="refetchGameInfo()" (newFrameEvent)="switchFrame($event)">
       </app-bio>
+      <app-ranking *ngSwitchCase="'ranking'" [frame$]="frame$" [gameInfo$]="gameInfo$" [account$]="account$"
+        [isHost]="isHost" (gameInfoRefetch)="refetchGameInfo()">
+      </app-ranking>
     </div>
   </div>
 </div>

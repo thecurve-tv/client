@@ -1,0 +1,66 @@
+@use "../../../../styles/host";
+@use "../../../../styles/vars";
+
+:host {
+  flex-direction: row;
+}
+
+.main {
+  display: flex;
+  flex-grow: 1;
+  padding: 1rem;
+  flex-direction: column;
+
+  .start {
+    margin: 2rem;
+  }
+
+  .ratings {
+    display: flex;
+    flex-grow: 1;
+    margin-top: 2rem;
+    flex-direction: column;
+
+    .rating {
+      display: flex;
+      margin: 1rem;
+      padding: 1rem 2rem;
+      border-radius: 1rem;
+      justify-content: space-between;
+
+      .bubble {
+        width: 10vh;
+        height: 10vh;
+        margin-left: 2rem;
+        margin-right: 2rem;
+        font: 600 1.5rem;
+        text-align: center;
+      }
+    }
+  }
+}
+
+.players {
+  display: flex;
+  padding: 1rem;
+  flex-direction: column;
+
+  .player {
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+
+    + player {
+      margin-top: 2rem;
+    }
+
+    img {
+      width: 10vw;
+      margin-bottom: 1rem;
+      border-radius: 100%;
+      border: solid 0.25rem vars.$color-purple;
+      object-fit: contain;
+      object-position: center;
+    }
+  }
+}
