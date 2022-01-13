@@ -5,11 +5,18 @@
       <img *ngIf="shortcut.type == 'img'" [src]="shortcut.src" [alt]="shortcut.alt">
       {{shortcut.text}}
     </div>
-    <button *ngIf="(hostGameInfo$ | async) as hostGame" class="btn-inverse invite" (click)="onInviteClick(hostGame)"
-      [disabled]="hostGame.players.length == hostGame.maxPlayerCount">
-      <i class="material-icons">add</i>
-      Invite ({{hostGame.maxPlayerCount - hostGame.players.length}} left)
-    </button>
+    <span *ngIf="(hostGameInfo$ | async) as hostGame">
+      <button class="btn-inverse invite" (click)="onInviteClick(hostGame)"
+        [disabled]="hostGame.players.length == hostGame.maxPlayerCount" e2e-id="btnShowInviteLink">
+        <i class="material-icons">add</i>
+        Invite ({{hostGame.maxPlayerCount - hostGame.players.length}} left)
+      </button>
+      <button class="stop-game" (click)="onStopGameClick(hostGame)" [disabled]="hostGame.pausedTime != null"
+        e2e-id="btnStopGame">
+        <i class="material-icons">stop</i>
+        Stop game
+      </button>
+    </span>
   </div>
   <div class="main">
     <div class="nav-bar" *ngIf="(gameInfo$ | async) as game">
