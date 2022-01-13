@@ -54,6 +54,23 @@ describe("Game Room from Host's perspective", () => {
     })
   })
 
+  describe('Controls', () => {
+    beforeEach(() => {
+      cy.get('[e2e-id="btnSwitchToChatFrame"]').click() // most controls are in the chat frame
+    })
+
+    it('provides invite link', () => {
+      cy.get('[e2e-id="btnShowInviteLink"]').click()
+      cy.contains(`http://localhost:4200/game/${gameId}/join`).should('exist')
+    })
+
+    it('allows stop game', () => {
+      cy.get('[e2e-id="btnStopGame"]').click()
+      cy.get('[e2e-id="btnPopupConfirm"]').click()
+      cy.url().should('match', new RegExp('/dashboard$'))
+    })
+  })
+
   describe('Ranking', () => {
     beforeEach(() => {
       cy.get('[e2e-id="btnSwitchToRankingFrame"]').click()

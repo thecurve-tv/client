@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core'
-import { ActivatedRoute } from '@angular/router'
+import { ActivatedRoute, Router } from '@angular/router'
 import { Apollo, QueryRef } from 'apollo-angular'
-import { combineLatest, Observable, of, ReplaySubject } from 'rxjs'
+import { combineLatest, from, Observable, of, ReplaySubject } from 'rxjs'
 import { filter, map, shareReplay, switchMap, take, tap } from 'rxjs/operators'
 import { getGameInfo, GetGameInfoQueryResult, GetGameInfoQueryVariables, mapGameInfoPointers, GameInfo, Player } from 'src/app/graphql/get-game-info.query'
+import { stopGame } from 'src/app/graphql/stop-game.mutation'
 import { Account } from 'src/app/models/account'
 import { ApiService } from 'src/app/services/api.service'
 import { PopupService } from 'src/app/services/popup.service'
@@ -48,6 +49,7 @@ export class RoomComponent implements OnInit {
     private apollo: Apollo,
     private apiService: ApiService,
     private popupService: PopupService,
+    private router: Router,
   ) { }
 
   ngOnInit() {
@@ -175,6 +177,24 @@ export class RoomComponent implements OnInit {
       type: 'info',
       message: `Invite players by sending them this link\n${joinUrl}`,
     })
+  }
+
+  async onStopGameClick(game: GameInfo) {
+    await this.popupService.newPopup({
+      type: 'info',
+      message: 'Are you sure you want to stop the game?',
+      requireConfirmation: true,
+    }).valueChanges.pipe(
+      take(1),
+      filter(confirmed => confirmed),
+      switchMap(() => {
+        return this.popupService.performWithPopup(
+          'Stopping the game',
+          stopGame(this.apollo, { gameId: game._id }),
+        )
+      }),
+      switchMap(() => from(this.router.navigate([ 'dashboard' ]))),
+    ).toPromise()
   }
 
   refetchGameInfo() {

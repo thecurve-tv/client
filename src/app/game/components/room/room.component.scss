@@ -29,8 +29,17 @@
     margin-left: 1rem;
   }
 
-  .invite {
+  .invite,
+  .stop-game {
     margin-left: 1.5rem;
+  }
+
+  .stop-game {
+    background-color: vars.$color-red-darker;
+  }
+
+  .stop-game:hover {
+    background-color: vars.$color-red;
   }
 }
 
