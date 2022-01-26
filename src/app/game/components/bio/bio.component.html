@@ -1,8 +1,7 @@
 <div class="host" *ngIf="(openPlayer$ | async) as player">
   <div class="photo-container">
     <img [src]="player.photo.uri" [alt]="player.photo.alt">
-    <button class="btn-accent" *ngIf="bioForm && !playerIsHost" (click)="onChangePhotoClick(player)"
-      e2e-id="btnChangePhoto">
+    <button class="btn-accent" *ngIf="canUploadPhoto" (click)="onChangePhotoClick(player)" e2e-id="btnChangePhoto">
       <i class="material-icons">edit</i>
       CHANGE
     </button>
@@ -49,8 +48,7 @@
   <div class="details" *ngIf="!bioForm">
     <div class="name">
       <h1 class="name-text">{{player.name}}</h1>
-      <button class="btn-inverse" *ngIf="!playerIsHost" (click)="openChatWithPlayer(player)"
-        e2e-id="btnStartChat">
+      <button class="btn-inverse" *ngIf="!playerIsHost" (click)="openChatWithPlayer(player)" e2e-id="btnStartChat">
         CHAT
       </button>
     </div>

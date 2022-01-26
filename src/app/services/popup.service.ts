@@ -3,7 +3,7 @@ import { BehaviorSubject, Observable, of, Subject } from 'rxjs'
 import { catchError, filter, last, map, switchMap, take, tap } from 'rxjs/operators'
 
 export interface PopupConfig {
-  type: 'error' | 'loading' | 'choose' | 'info'
+  type: 'error' | 'loading' | 'choose' | 'info' | 'upload'
   message?: string
 }
 
@@ -40,13 +40,21 @@ export interface InfoPopupConfig extends PopupConfig {
   confirm?: () => void
 }
 
+export interface UploadPopupConfig extends PopupConfig {
+  type: 'upload'
+  message: string
+  mimeType: string
+  title?: string
+  selectedFiles?: File[]
+}
+
 export class Popup<TConfig extends PopupConfig, TValue> {
   private isDismissed: boolean
   readonly valueChanges = new Subject<TValue>()
 
   constructor(
     public config: TConfig,
-    private popup$: BehaviorSubject<Popup<any, any>>
+    private popup$: BehaviorSubject<Popup<any, any>>,
   ) { }
 
   next(value?: TValue) {
@@ -57,24 +65,26 @@ export class Popup<TConfig extends PopupConfig, TValue> {
     await of(this.isDismissed).pipe(
       filter(isDimissed => !isDimissed),
       map(() => {
-        this.next(finalValue)
+        if (finalValue !== undefined) this.next(finalValue)
         this.valueChanges.complete()
       }),
       switchMap(() => this.popup$),
       take(1),
       map(currentPopup => {
+        this.isDismissed = true
         if (currentPopup == this) this.popup$.next(null)
-      })
+      }),
     ).toPromise()
   }
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class PopupService {
   public popup$ = new BehaviorSubject<Popup<any, any>>(null)
 
+  newPopup(config: UploadPopupConfig): Popup<UploadPopupConfig, File[] | undefined>
   newPopup(config: InfoPopupConfig): Popup<InfoPopupConfig, boolean>
   newPopup(config: PopupConfig): Popup<PopupConfig, void>
   newPopup<TConfig extends PopupConfig, TValue>(config: TConfig): Popup<TConfig, TValue> {
@@ -93,7 +103,7 @@ export class PopupService {
     return new Observable(sub => {
       const popup = this.newPopup({
         type: 'loading',
-        message: message
+        message: message,
       })
       // subscribe to the provided observable
       obs.pipe(
@@ -102,14 +112,14 @@ export class PopupService {
           console.error(err)
           this.newPopup({
             type: 'error',
-            message: err.message || err
+            message: err.message || err,
           })
           throw err // re-throw the error
         }),
         // wait till last value is returned
         last(),
         // dismiss the popup & release the result
-        tap(() => popup.dismiss())
+        tap(() => popup.dismiss()),
       ).subscribe(sub)
     })
   }
