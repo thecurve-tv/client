@@ -4,7 +4,8 @@ import { Apollo } from 'apollo-angular'
 import { combineLatest, Observable, of, zip } from 'rxjs'
 import { delay, filter, map, switchMap, take, tap } from 'rxjs/operators'
 import { createChat } from 'src/app/graphql/create-chat.mutation'
-import { Chat, GameInfo, Player } from 'src/app/graphql/get-game-info.query'
+import { Chat, DEFAULT_PHOTO_URI, GameInfo, Player } from 'src/app/graphql/get-game-info.query'
+import { playerUploadPhoto } from 'src/app/graphql/player-upload-photo.mutation'
 import { updateBio } from 'src/app/graphql/update-bio.mutation'
 import { Account } from 'src/app/models/account'
 import { PopupService } from 'src/app/services/popup.service'
@@ -13,7 +14,7 @@ import { Frame } from '../room/room.component'
 @Component({
   selector: 'app-bio',
   templateUrl: './bio.component.html',
-  styleUrls: ['./bio.component.scss']
+  styleUrls: [ './bio.component.scss' ],
 })
 export class BioComponent implements OnInit {
   private loggedInAccountId: string
@@ -25,10 +26,11 @@ export class BioComponent implements OnInit {
   openPlayer$: Observable<Player>
   bioForm: FormGroup
   playerIsHost: boolean
+  canUploadPhoto: boolean
 
   constructor(
     private popupService: PopupService,
-    private apollo: Apollo
+    private apollo: Apollo,
   ) { }
 
   async ngOnInit(): Promise<void> {
@@ -37,15 +39,15 @@ export class BioComponent implements OnInit {
 
   private async setOpenPlayer$() {
     if (this.openPlayer$) return
-    this.openPlayer$ = combineLatest([this.frame$, this.gameInfo$]).pipe(
-      filter(([frame]) => frame.type == 'bio'),
+    this.openPlayer$ = combineLatest([ this.frame$, this.gameInfo$ ]).pipe(
+      filter(([ frame ]) => frame.type == 'bio'),
       switchMap(frameAndGameInfo => {
         return this.account$.pipe( // refetch the logged in player's account
           tap(({ _id: accountId }) => this.loggedInAccountId = accountId),
-          map(_ => frameAndGameInfo)
+          map(_ => frameAndGameInfo),
         )
       }),
-      map(([frame, gameInfo]) => {
+      map(([ frame, gameInfo ]) => {
         let openPlayerId: string
         this.playerIsHost = this.loggedInAccountId == gameInfo.hostAccount._id
         if (this.playerIsHost) {
@@ -53,17 +55,21 @@ export class BioComponent implements OnInit {
         } else {
           openPlayerId = frame.docId
         }
-        return <[string, GameInfo]>[openPlayerId, gameInfo]
+        return <[string, GameInfo]>[ openPlayerId, gameInfo ]
       }),
-      filter(([openPlayerId]) => !!openPlayerId),
-      map(([openPlayerId, gameInfo]) => {
-        let openPlayer = gameInfo.players.find(player => {
+      filter(([ openPlayerId ]) => !!openPlayerId),
+      map(([ openPlayerId, gameInfo ]) => {
+        const openPlayer = gameInfo.players.find(player => {
           if (openPlayerId) return player._id == openPlayerId
           return player.account._id == this.loggedInAccountId
         })
         this.setBioForm(openPlayer)
         return openPlayer
-      })
+      }),
+      tap(openPlayer => {
+        const alreadyUploadedPhoto = openPlayer?.photo?.uri !== DEFAULT_PHOTO_URI
+        this.canUploadPhoto = this.bioForm && !this.playerIsHost && !alreadyUploadedPhoto
+      }),
     )
   }
 
@@ -73,10 +79,10 @@ export class BioComponent implements OnInit {
       return
     }
     this.bioForm = new FormGroup({
-      name: new FormControl(player.name, [Validators.required, Validators.minLength(1), Validators.maxLength(20)]),
-      age: new FormControl(player.age, [Validators.required, Validators.min(13)]),
-      job: new FormControl(player.job, [Validators.required, Validators.minLength(1), Validators.maxLength(20)]),
-      bio: new FormControl(player.bio, [Validators.required, Validators.minLength(1), Validators.maxLength(1000)])
+      name: new FormControl(player.name, [ Validators.required, Validators.minLength(1), Validators.maxLength(20) ]),
+      age: new FormControl(player.age, [ Validators.required, Validators.min(13) ]),
+      job: new FormControl(player.job, [ Validators.required, Validators.minLength(1), Validators.maxLength(20) ]),
+      bio: new FormControl(player.bio, [ Validators.required, Validators.minLength(1), Validators.maxLength(1000) ]),
     })
   }
 
@@ -89,11 +95,11 @@ export class BioComponent implements OnInit {
         name: this.bioForm.get('name').value,
         age: this.bioForm.get('age').value,
         bio: this.bioForm.get('bio').value,
-        job: this.bioForm.get('job').value
+        job: this.bioForm.get('job').value,
       }).pipe(
         delay(2000),
-        tap(() => this.gameInfoChangedEvent.emit())
-      )
+        tap(() => this.gameInfoChangedEvent.emit()),
+      ),
     ).toPromise()
   }
 
@@ -110,7 +116,7 @@ export class BioComponent implements OnInit {
      */
     await zip(this.account$, this.gameInfo$).pipe(
       take(1),
-      switchMap(([{ _id: accountId }, gameInfo]) => {
+      switchMap(([{ _id: accountId }, gameInfo ]) => {
         const requestingPlayer = gameInfo.players.find(p => p.account._id == accountId)
         if (!otherPlayer?._id || otherPlayer._id === requestingPlayer._id) {
           console.error('Invalid argument provided for otherPlayer. Got', otherPlayer)
@@ -127,10 +133,10 @@ export class BioComponent implements OnInit {
       tap(chatId => {
         this.newFrameEvent.emit({
           type: 'chat',
-          docId: chatId
+          docId: chatId,
         })
         this.gameInfoChangedEvent.emit()
-      })
+      }),
     ).toPromise()
   }
 
@@ -140,7 +146,7 @@ export class BioComponent implements OnInit {
         return this.popupService.newPopup({
           type: 'info',
           message: `Ready to start a brand new chat with ${otherPlayer.name}?`,
-          requireConfirmation: true
+          requireConfirmation: true,
         }).valueChanges
       }),
       map(isConfirmed => {
@@ -149,7 +155,7 @@ export class BioComponent implements OnInit {
         if (!name || name.length > 50) {
           this.popupService.newPopup({
             type: 'error',
-            message: "Chat names are required and can't be longer than 50 characters"
+            message: "Chat names are required and can't be longer than 50 characters",
           })
           return
         }
@@ -162,15 +168,48 @@ export class BioComponent implements OnInit {
           createChat(this.apollo, {
             gameId,
             name,
-            playerIds: [requestingPlayerId, otherPlayer._id]
-          })
+            playerIds: [ requestingPlayerId, otherPlayer._id ],
+          }),
         )
       }),
       map(({ data, errors }) => {
         if (errors) console.error(errors)
         return data.chatCreate.chat._id
-      })
+      }),
     )
+  }
+
+  async onChangePhotoClick(player: Player): Promise<void> {
+    if (!this.canUploadPhoto) return
+    await this.popupService.newPopup({
+      type: 'upload',
+      message: 'Please select a photo under 10 MB to upload',
+      mimeType: 'image/*',
+    }).valueChanges.pipe(
+      take(1),
+      filter(files => files?.length === 1),
+      switchMap(files => {
+        return this.popupService.newPopup({
+          type: 'info',
+          message: 'Are you sure you want to upload this photo?\nYour photo cannot be updated afterwards.',
+          requireConfirmation: true,
+        }).valueChanges.pipe(
+          map(confirmed => [ confirmed, files ] as [boolean, File[]]),
+        )
+      }),
+      take(1),
+      filter(([ confirmed ]) => confirmed),
+      switchMap(([ , files ]) => {
+        return this.popupService.performWithPopup(
+          'Uploading your photo',
+          playerUploadPhoto(this.apollo, {
+            playerId: player._id,
+            file: files[0],
+          }),
+        )
+      }),
+      tap(() => this.gameInfoChangedEvent.emit()),
+    ).toPromise()
   }
 
 }

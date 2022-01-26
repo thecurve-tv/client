@@ -12,24 +12,42 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  audit-packages:
-    # The type of runner that the job will run on
+  lint:
     runs-on: ubuntu-latest
-    # we want to be notified of vulnerabilities but don't want them to block development
     continue-on-error: true
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - uses: actions/setup-node@v2
         with:
           node-version: '14'
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
+      - run: npm ci
+      - name: Lint code ✔🕵️‍♀️
+        run: npm run lint
+  audit-packages:
+    runs-on: ubuntu-latest
+    # we want to be notified of vulnerabilities but don't want them to block development
+    continue-on-error: true
+    steps:
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+      - uses: actions/checkout@v2
       - name: Install NPM packages 📦
         run: npm ci
-      # Runs a single command using the runners shell
       - name: Audit NPM packages ✔🕵️‍♀️
         # only fails the audit if the results include a vulnerability with a level of moderate or higher
         run: npm audit --audit-level=moderate --production
+  audit-dependencies:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+      - uses: actions/checkout@v2
+      - run: npm ci
+      - name: Check for circular dependencies 🚫♻
+        run: npx madge --circular .
   build:
     runs-on: ubuntu-latest
     steps:

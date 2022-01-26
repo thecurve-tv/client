@@ -2,6 +2,7 @@ import { Apollo } from 'apollo-angular'
 import gql from 'graphql-tag'
 import { OperatorFunction } from 'rxjs'
 import { map } from 'rxjs/operators'
+import { environment } from 'src/environments/environment'
 
 const GetGameInfo = gql`
 query GetGameInfo($gameId: MongoID!) {
@@ -91,7 +92,7 @@ export function getGameInfo(apollo: Apollo, variables: GetGameInfoQueryVariables
       fetchPolicy: 'cache-and-network',
       errorPolicy: 'all',
       notifyOnNetworkStatusChange: true,
-      pollInterval
+      pollInterval,
     })
 }
 
@@ -111,6 +112,8 @@ export type GameInfo = Omit<GetGameInfoQueryResult['gameById'], 'mainChat' | 'pl
   chatById: Map<Chat['_id'], Chat>
 }
 
+export const DEFAULT_PHOTO_URI = '/assets/default-profile-photo.png'
+
 /**
  * 1. Privately stores every chat & player in maps
  * 2. Applies a getter on every chat & player object to reference the full object from the maps
@@ -121,21 +124,31 @@ export type GameInfo = Omit<GetGameInfoQueryResult['gameById'], 'mainChat' | 'pl
 export function mapGameInfoPointers(): OperatorFunction<GetGameInfoQueryResult, GameInfo> {
   return map((gameInfo: GetGameInfoQueryResult) => {
     const players = gameInfo.gameById.players.map(_player => {
-      const photo = _player.photo || {
-        _id: null,
-        uri: '/assets/default-profile-photo.png',
-        alt: 'Default profile photo'
+      let photo: Player['photo']
+      if (_player.photo) {
+        photo = {
+          ..._player.photo,
+          // uri is 'players/:id/photo' but should be 'http://apidomain/players/:id/photo
+          // this is done to allow using TEST vs DEV vs PROD servers
+          uri: `${environment.API_HOST}/${_player.photo.uri}`,
+        }
+      } else {
+        photo = {
+          _id: null,
+          uri: DEFAULT_PHOTO_URI,
+          alt: 'Default profile photo',
+        }
       }
       return {
         ..._player,
-        photo
+        photo,
       }
     })
     const playerById = new Map(
-      players.map(player => [player._id, player])
+      players.map(player => [ player._id, player ]),
     )
     const chatById = new Map(
-      gameInfo.gameById.chats.map(chat => [chat._id, chat])
+      gameInfo.gameById.chats.map(chat => [ chat._id, chat ]),
     )
     const mappedGameInfo: GameInfo = {
       ...gameInfo.gameById,
@@ -143,19 +156,19 @@ export function mapGameInfoPointers(): OperatorFunction<GetGameInfoQueryResult, 
       players,
       get chats() { // lazy loaded
         delete this.chats
-        return this.chats = [...chatById.values()].map(chat => {
+        return this.chats = [ ...chatById.values() ].map(chat => {
           return {
             ...chat,
             get players() {
               return chat.players.map(chatPlayer => {
                 return playerById.get(chatPlayer._id)
               })
-            }
+            },
           }
         })
       },
       playerById,
-      chatById
+      chatById,
     }
     return mappedGameInfo
   })

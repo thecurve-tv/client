@@ -6,11 +6,13 @@ import { getMainDefinition } from '@apollo/client/utilities'
 import { AuthService } from '@auth0/auth0-angular'
 import { APOLLO_OPTIONS } from 'apollo-angular'
 import { HttpLink } from 'apollo-angular/http'
+import { createUploadLink } from 'apollo-upload-client'
 import { OperationDefinitionNode } from 'graphql'
 import { environment } from 'src/environments/environment'
 
 export function createApolloFactory(httpLink: HttpLink, authService: AuthService): ApolloClientOptions<any> {
   const httpLinkHandler = httpLink.create({ uri: environment.GRAPHQL_URI })
+  const multipartFileLinkHandler = createUploadLink({ uri: environment.GRAPHQL_URI })
   const wsLinkHandler = new WebSocketLink({
     uri: environment.GRAPHQL_WS_URI,
     options: {
@@ -18,10 +20,10 @@ export function createApolloFactory(httpLink: HttpLink, authService: AuthService
       connectionParams: async () => {
         const accessToken: string = await authService.getAccessTokenSilently().toPromise()
         return {
-          authorization: `Bearer ${accessToken}`
+          authorization: `Bearer ${accessToken}`,
         }
       },
-      reconnectionAttempts: 1
+      reconnectionAttempts: 1,
     },
   })
   const httpAndWsLink = split(
@@ -32,20 +34,25 @@ export function createApolloFactory(httpLink: HttpLink, authService: AuthService
       return isAnOperation && (<OperationDefinitionNode>def).operation === 'subscription'
     },
     wsLinkHandler,
-    httpLinkHandler,
+    split(
+      ({ operationName }) => operationName === 'PlayerUploadPhoto',
+      multipartFileLinkHandler,
+      httpLinkHandler,
+    ),
   )
   const errorLink = onError(({ graphQLErrors, networkError }) => {
     if (graphQLErrors) {
-      graphQLErrors.map(({ message, locations, path }) =>
-        console.error(
-          `[GraphQL error]: Message: ${message}, Location: ${JSON.stringify(locations, null, 2)}, Path: ${path}`,
-        ),
-      )
+      graphQLErrors.map(({ message, locations, path, extensions }) => console.error(
+        `[GraphQL error]: Path: ${path}`,
+        `Message: ${message}`,
+        'Location:', locations,
+        'Extensions:', extensions,
+      ))
     }
     if (networkError) console.error('[Network error]: ', networkError)
   })
   return {
-    link: ApolloLink.from([errorLink, httpAndWsLink]),
+    link: ApolloLink.from([ errorLink, httpAndWsLink ]),
     cache: new InMemoryCache(),
   }
 }
@@ -55,7 +62,7 @@ export function createApolloFactory(httpLink: HttpLink, authService: AuthService
     {
       provide: APOLLO_OPTIONS,
       useFactory: createApolloFactory,
-      deps: [HttpLink, AuthService],
+      deps: [ HttpLink, AuthService ],
     },
   ],
 })

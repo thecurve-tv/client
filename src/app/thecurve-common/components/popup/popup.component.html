@@ -48,11 +48,35 @@
       </div>
     </div>
     <div class="dismiss w3-animate-opacity">
-      <button class="color-red" (click)="popup.dismiss(false)">
+      <button class="color-red" (click)="popup.dismiss()">
         {{popup.config.requireConfirmation ? 'Cancel' : 'Close'}}
       </button>
       <button *ngIf="popup.config.requireConfirmation" (click)="popup.dismiss(true)" e2e-id="btnPopupConfirm">
         Confirm
+      </button>
+    </div>
+  </div>
+  <div id="uploadPopup" class="popup w3-animate-opacity" *ngSwitchCase="'upload'">
+    <div class="upload-popup">
+      <div class="header" *ngIf="popup.config.title">
+        <h2>{{popup.config.title}}</h2>
+        <button (click)="popup.dismiss()">
+          <i class="material-icons">close</i>
+          Cancel
+        </button>
+      </div>
+      <div class="text">
+        <p *ngFor="let line of popup.config.message.split('\n')">{{line}}</p>
+        <br />
+        <input type="file" [accept]="popup.config.mimeType" (change)="popup.config.selectedFiles = $event.target.files">
+      </div>
+    </div>
+    <div class="dismiss w3-animate-opacity">
+      <button class="color-red" (click)="popup.dismiss()">
+        Cancel
+      </button>
+      <button (click)="popup.dismiss(popup.config.selectedFiles)" e2e-id="btnPopupUpload">
+        Upload
       </button>
     </div>
   </div>
