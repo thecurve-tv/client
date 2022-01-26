@@ -85,16 +85,19 @@ describe('Game Room', () => {
 
     it('shows player names', () => {
       // 3 players. (1 host,) 1 other, & me
+      cy.wait(1000)
       cy.get('.shortcut').should('have.length', 3)
     })
 
     it('shows a player\'s info', () => {
+      cy.wait(1000)
       cy.get('.shortcut').contains(player3.name).click()
       cy.get('.name-text').should('contain.text', player3.name)
       cy.get('[e2e-id="btnChangePhoto"]').should('not.exist')
     })
 
     it('allows edit bio', () => {
+      cy.wait(1000)
       cy.get('.shortcut').contains(player2AkaMe.name).click()
       cy.get('[e2e-id="btnChangePhoto"]').should('exist')
       // Name field
@@ -133,6 +136,7 @@ describe('Game Room', () => {
       cy.window().then(win => {
         cy.stub(win, 'prompt').returns('chatWithP3')
       })
+      cy.wait(1000)
       cy.get('.shortcut').contains(player3.name).click()
       cy.get('[e2e-id="btnStartChat"]').click()
       cy.get('[e2e-id="btnPopupConfirm"]').click()
@@ -140,6 +144,15 @@ describe('Game Room', () => {
         const chatId = $e.attr('e2e_chat_id')
         testSendingAndReceivingMessages(chatId)
       })
+    })
+
+    it('allows upload photo', () => {
+      cy.wait(1000)
+      cy.get('.shortcut').contains(player2AkaMe.name).click()
+      cy.get('[e2e-id="btnChangePhoto"]').click()
+      cy.get('input[type="file"]').attachFile('nose-aerobics.png')
+      cy.get('[e2e-id="btnPopupUpload"]').click()
+      cy.get('[e2e-id="btnPopupConfirm"]').click()
     })
   })
 
@@ -202,7 +215,7 @@ describe('Game Room', () => {
           }
         }`,
       account: player3.account,
-    }).then(({ body: {errors} }) => {
+    }).then(({ body: { errors } }) => {
       expect(errors, JSON.stringify(errors, null, 2)).equal(undefined)
       cy.get('.message').contains('Hello from p3!').should('exist')
     })
