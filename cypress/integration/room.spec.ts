@@ -81,23 +81,21 @@ describe('Game Room', () => {
   describe('Bio', () => {
     beforeEach(() => {
       cy.get('[e2e-id="btnSwitchToBioFrame"]').click()
+      cy.wait(1000)
     })
 
     it('shows player names', () => {
       // 3 players. (1 host,) 1 other, & me
-      cy.wait(1000)
       cy.get('.shortcut').should('have.length', 3)
     })
 
     it('shows a player\'s info', () => {
-      cy.wait(1000)
       cy.get('.shortcut').contains(player3.name).click()
       cy.get('.name-text').should('contain.text', player3.name)
       cy.get('[e2e-id="btnChangePhoto"]').should('not.exist')
     })
 
     it('allows edit bio', () => {
-      cy.wait(1000)
       cy.get('.shortcut').contains(player2AkaMe.name).click()
       cy.get('[e2e-id="btnChangePhoto"]').should('exist')
       // Name field
@@ -136,7 +134,6 @@ describe('Game Room', () => {
       cy.window().then(win => {
         cy.stub(win, 'prompt').returns('chatWithP3')
       })
-      cy.wait(1000)
       cy.get('.shortcut').contains(player3.name).click()
       cy.get('[e2e-id="btnStartChat"]').click()
       cy.get('[e2e-id="btnPopupConfirm"]').click()
@@ -147,12 +144,30 @@ describe('Game Room', () => {
     })
 
     it('allows upload photo', () => {
-      cy.wait(1000)
       cy.get('.shortcut').contains(player2AkaMe.name).click()
       cy.get('[e2e-id="btnChangePhoto"]').click()
       cy.get('input[type="file"]').attachFile('nose-aerobics.png')
       cy.get('[e2e-id="btnPopupUpload"]').click()
       cy.get('[e2e-id="btnPopupConfirm"]').click()
+    })
+
+    it('enforces only set bio once', () => {
+      cy.get('.shortcut').contains(player2AkaMe.name).click()
+      cy.get('[formControlName="name"]').clear().type(player2AkaMe.name)
+      cy.get('[formControlName="age"]').clear().type('16')
+      cy.get('[formControlName="job"]').clear().type('My job')
+      cy.get('[formControlName="bio"]').clear().type('My bio')
+      cy.get('[e2e-id="btnSaveBio"]').click()
+      cy.get('[e2e-id="btnPopupConfirm"]').click()
+      cy.wait(5000)
+      // upload photo:
+      cy.get('[e2e-id="btnChangePhoto"]').click()
+      cy.get('input[type="file"]').attachFile('nose-aerobics.png')
+      cy.get('[e2e-id="btnPopupUpload"]').click()
+      cy.get('[e2e-id="btnPopupConfirm"]').click()
+      cy.wait(15000)
+      cy.get('[e2e-id="btnSaveBio"]').should('not.exist')
+      cy.get('[e2e-id="btnChangePhoto"]').should('not.exist')
     })
   })
 
