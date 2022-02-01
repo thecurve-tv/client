@@ -34,11 +34,6 @@ export class BioComponent implements OnInit {
   ) { }
 
   async ngOnInit(): Promise<void> {
-    await this.setOpenPlayer$()
-  }
-
-  private async setOpenPlayer$() {
-    if (this.openPlayer$) return
     this.openPlayer$ = combineLatest([ this.frame$, this.gameInfo$ ]).pipe(
       filter(([ frame ]) => frame.type == 'bio'),
       switchMap(frameAndGameInfo => {
@@ -74,7 +69,10 @@ export class BioComponent implements OnInit {
   }
 
   private setBioForm(player: Player) {
-    if (player.account._id != this.loggedInAccountId) {
+    const viewingPlayerOtherThanOwn = player.account._id != this.loggedInAccountId
+    const alreadyUploadedPhoto = player.photo?.uri !== DEFAULT_PHOTO_URI
+    const playerBioComplete = player.name && player.age && player.job && player.bio && alreadyUploadedPhoto
+    if (viewingPlayerOtherThanOwn || playerBioComplete) {
       this.bioForm = null
       return
     }
@@ -88,18 +86,28 @@ export class BioComponent implements OnInit {
 
   async submitBioForm(player: Player) {
     if (!this.bioForm.valid) return
-    await this.popupService.performWithPopup(
-      'Updating bio',
-      updateBio(this.apollo, {
-        playerId: player._id,
-        name: this.bioForm.get('name').value,
-        age: this.bioForm.get('age').value,
-        bio: this.bioForm.get('bio').value,
-        job: this.bioForm.get('job').value,
-      }).pipe(
-        delay(2000),
-        tap(() => this.gameInfoChangedEvent.emit()),
-      ),
+    await this.popupService.newPopup({
+      type: 'info',
+      message: 'Are you sure you want to save this bio?\nOnce complete, your bio cannot be updated afterwards.',
+      requireConfirmation: true,
+    }).valueChanges.pipe(
+      take(1),
+      filter(confirmed => confirmed),
+      switchMap(() => {
+        return this.popupService.performWithPopup(
+          'Updating bio',
+          updateBio(this.apollo, {
+            playerId: player._id,
+            name: this.bioForm.get('name').value,
+            age: this.bioForm.get('age').value,
+            bio: this.bioForm.get('bio').value,
+            job: this.bioForm.get('job').value,
+          }).pipe(
+            delay(2000),
+            tap(() => this.gameInfoChangedEvent.emit()),
+          ),
+        )
+      }),
     ).toPromise()
   }
 
@@ -189,9 +197,11 @@ export class BioComponent implements OnInit {
       take(1),
       filter(files => files?.length === 1),
       switchMap(files => {
+        //true means photo is present; line is testing if the bio will be complete once photo is uploaded
+        const playerBioComplete = player.name && player.age && player.job && player.bio && true
         return this.popupService.newPopup({
           type: 'info',
-          message: 'Are you sure you want to upload this photo?\nYour photo cannot be updated afterwards.',
+          message: `Are you sure you want to upload this photo?\nYour ${playerBioComplete ? 'bio' : 'photo'} cannot be updated afterwards.`,
           requireConfirmation: true,
         }).valueChanges.pipe(
           map(confirmed => [ confirmed, files ] as [boolean, File[]]),
