@@ -6,6 +6,11 @@ query GetJoinedGames {
   myAccount {
     players {
       name
+      photo {
+        _id
+        uri
+        alt
+      }
       game {
         _id
         hostAccount {
@@ -23,12 +28,15 @@ query GetJoinedGames {
 }
 `
 
-export interface GetJoinedGamesQueryVariables { }
-
 export interface GetJoinedGamesQueryResult {
   myAccount: {
     players: {
       name: string
+      photo: {
+        _id: string
+        uri: string
+        alt: string
+      }
       game: {
         _id: string
         hostAccount: { _id: string }
@@ -41,14 +49,13 @@ export interface GetJoinedGamesQueryResult {
   }
 }
 
-export function getJoinedGames(apollo: Apollo, variables: GetJoinedGamesQueryVariables, pollInterval?: number) {
+export function getJoinedGames(apollo: Apollo, pollInterval?: number) {
   return apollo
-    .watchQuery<GetJoinedGamesQueryResult, GetJoinedGamesQueryVariables>({
+    .watchQuery<GetJoinedGamesQueryResult>({
       query: GetJoinedGamesQuery,
-      variables,
       fetchPolicy: 'cache-and-network',
       errorPolicy: 'all',
       notifyOnNetworkStatusChange: true,
-      pollInterval
+      pollInterval,
     })
 }

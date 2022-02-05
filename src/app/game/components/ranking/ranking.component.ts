@@ -3,10 +3,10 @@ import { Apollo, QueryRef } from 'apollo-angular'
 import { combineLatest, from, Observable, of, ReplaySubject, zip } from 'rxjs'
 import { filter, map, shareReplay, switchMap, take } from 'rxjs/operators'
 import { GameInfo, Player } from 'src/app/graphql/get-game-info.query'
+import { Account } from 'src/app/graphql/get-my-account.query'
 import { getRankings, GetRankingsQueryResult, GetRankingsQueryVariables, Ranking } from 'src/app/graphql/get-rankings.query'
 import { rankingPutRatings } from 'src/app/graphql/ranking-put-ratings.mutation'
 import { startRanking } from 'src/app/graphql/start-ranking.mutation'
-import { Account } from 'src/app/models/account'
 import { PopupService } from 'src/app/services/popup.service'
 import { Frame } from '../room/room.component'
 
@@ -153,14 +153,25 @@ export class RankingComponent implements OnInit {
   }
 
   async startRanking(): Promise<void> {
-    if (!confirm('Are you sure you want to start a ranking?')) return
-    await this.popupService.performWithPopup(
-      `Starting ranking #${this.numRankings + 1}`,
-      this.gameInfo$.pipe(
-        take(1),
-        switchMap(gameInfo => startRanking(this.apollo, { gameId: gameInfo._id })),
-        switchMap(() => from(this.getRankingsQuery.refetch())),
-      ),
+    await of(undefined).pipe(
+      switchMap(() => {
+        return this.popupService.newPopup({
+          type: 'info',
+          message: 'Are you sure you want to start a ranking?',
+          requireConfirmation: true,
+        }).valueChanges
+      }),
+      filter(confirmed => confirmed),
+      switchMap(() => {
+        return this.popupService.performWithPopup(
+          `Starting ranking #${this.numRankings + 1}`,
+          this.gameInfo$.pipe(
+            take(1),
+            switchMap(gameInfo => startRanking(this.apollo, { gameId: gameInfo._id })),
+            switchMap(() => from(this.getRankingsQuery.refetch())),
+          ),
+        )
+      }),
     ).toPromise()
   }
 

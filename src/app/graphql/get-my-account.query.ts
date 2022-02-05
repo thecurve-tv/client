@@ -10,8 +10,6 @@ query GetMyAccount {
 }
 `
 
-export interface GetMyAccountQueryVariables { }
-
 export interface GetAccountQueryResult {
   myAccount: {
     _id: string
@@ -19,14 +17,15 @@ export interface GetAccountQueryResult {
   }
 }
 
-export function getMyAccount(apollo: Apollo, variables: GetMyAccountQueryVariables, pollInterval?: number) {
+export function getMyAccount(apollo: Apollo, pollInterval?: number) {
   return apollo
-    .watchQuery<GetAccountQueryResult, GetMyAccountQueryVariables>({
+    .watchQuery<GetAccountQueryResult>({
       query: GetMyAccountQuery,
-      variables,
       fetchPolicy: 'cache-and-network',
       errorPolicy: 'all',
       notifyOnNetworkStatusChange: true,
-      pollInterval
+      pollInterval,
     })
 }
+
+export type Account = GetAccountQueryResult['myAccount']

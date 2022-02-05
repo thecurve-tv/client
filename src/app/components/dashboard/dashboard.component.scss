@@ -1,126 +1,125 @@
 @use "../../../styles/vars";
 @use "../../../styles/host";
 
-.header {
+.content {
+  padding: 0;
+}
+.content.clipped {
+  height: 100vh;
+  overflow: hidden;
+}
+
+.fold,
+.games-row,
+.socials {
+  padding: vars.$page-content-vert-padding vars.$page-content-horz-padding;
+}
+
+.fold {
   display: flex;
-  margin-bottom: 2.5rem;
-  justify-content: space-between;
+  min-height: 90vh;
+  padding: 2rem;
+  position: relative;
+  border-bottom: 3px solid vars.$color-secondary;
+  flex-direction: column;
+  justify-content: center;
+  background-image: url("../../../assets/landing_fold_bg.png");
+  background-size: cover;
+  background-position: center;
+
+  img {
+    width: 20rem;
+    margin-bottom: 2rem;
+    position: absolute;
+    top: 1rem;
+    object-fit: contain;
+    object-position: center;
+  }
+
+  h1,
+  .new-game {
+    text-align: center;
+  }
+
+  .new-game {
+    margin-top: 2rem;
+
+    button {
+      background-color: vars.$color-white;
+    }
+  }
 }
 
 .games-row {
   display: flex;
-  align-items: flex-start;
+  margin: vars.$page-content-horz-padding;
+  flex-direction: column;
+  align-items: center;
+  background-color: #3254ec;
 
-  .games-row-section {
+  .header {
     display: flex;
-    flex-direction: column;
+    position: relative;
+    align-items: center;
 
-    h3 {
+    .loading {
       display: flex;
-      flex-grow: 1;
-      align-items: center;
+      margin-left: 1rem;
+      font-size: 0.875rem;
+      position: absolute;
+      right: 0;
 
-      .loading {
-        display: flex;
-        margin-left: 1rem;
-        font-size: 0.875rem;
-
-        mat-spinner {
-          margin-right: 0.5rem;
-        }
-      }
-    }
-
-    .games-row-bubbles {
-      display: flex;
-      margin-top: 1rem;
-      align-items: center;
-
-      $games-row-bubble-width: 12.5rem;
-      $games-row-bubble-padding: 1rem;
-      %games-row-bubble-dimensions {
-        display: flex;
-        height: 6.25rem;
-      }
-
-      .games-row-bubble {
-        @extend %games-row-bubble-dimensions;
-        width: $games-row-bubble-width;
-        padding: $games-row-bubble-padding;
-        border-radius: 0.375rem;
-        flex-direction: column;
-
-        .games-row-bubble-actions {
-          display: none;
-        }
-      }
-
-      .games-row-bubble:hover {
-        .games-row-bubble-date,
-        .games-row-bubble-name,
-        .games-row-bubble-time {
-          display: none;
-        }
-
-        .games-row-bubble-actions {
-          @extend %games-row-bubble-dimensions;
-          width: $games-row-bubble-width - ($games-row-bubble-padding * 2);
-          position: sticky;
-          justify-content: space-evenly;
-          align-items: center;
-
-          * {
-            padding: 1rem;
-            border-radius: 100%;
-            cursor: pointer;
-          }
-
-          .games-row-bubble-actions-resume {
-            background-color: vars.$bg-secondary;
-          }
-
-          .games-row-bubble-actions-stop {
-            background-color: vars.$color-red-darker;
-          }
-        }
-      }
-
-      .games-row-bubble + .games-row-bubble {
-        margin-left: 1rem;
-      }
-
-      .games-row-bubble-date,
-      .games-row-bubble-time {
-        font-size: 0.8rem;
-      }
-
-      .games-row-bubble-name {
-        font-weight: 600;
-      }
-
-      button {
-        display: flex;
-        width: 6rem;
-        height: 6rem;
-        padding: 1rem;
-        border-radius: 100%;
-        justify-content: center;
-        align-items: center;
-        background-color: vars.$color-purple;
-        cursor: pointer;
-      }
-
-      button:disabled {
-        border: 1px solid vars.$color-purple;
-        background-color: vars.$bg-muted;
-        color: vars.$color-muted;
-      }
-
-      button + button {
-        margin-left: 1rem;
+      mat-spinner {
+        margin-right: 0.5rem;
       }
     }
   }
+
+  .games-row-bubble {
+    display: flex;
+    height: 6.25rem;
+    width: 12.5rem;
+    padding: 1rem;
+    border-radius: 0.375rem;
+    flex-direction: column;
+
+    button {
+      display: flex;
+      width: 6rem;
+      height: 6rem;
+      padding: 1rem;
+      border-radius: 100%;
+      justify-content: center;
+      align-items: center;
+      background-color: vars.$color-purple;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      border: 1px solid vars.$color-purple;
+      background-color: vars.$bg-muted;
+      color: vars.$color-muted;
+    }
+
+    button + button {
+      margin-left: 1rem;
+    }
+
+    .games-row-bubble-date,
+    .games-row-bubble-time {
+      font-size: 0.8rem;
+    }
+
+    .games-row-bubble-name {
+      font-weight: 600;
+    }
+  }
+}
+
+.socials {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .new-game-popup {

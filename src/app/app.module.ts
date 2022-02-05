@@ -11,12 +11,14 @@ import { DashboardComponent } from 'src/app/components/dashboard/dashboard.compo
 import { GraphQLModule } from './graphql/graphql.module'
 import { ThecurveCommonModule } from './thecurve-common/thecurve-common.module'
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations'
+import { LoginRedirectComponent } from './components/login-redirect/login-redirect.component'
 
 @NgModule({
   declarations: [
     AppComponent,
+    DashboardComponent,
     LandingComponent,
-    DashboardComponent
+    LoginRedirectComponent,
   ],
   imports: [
     BrowserModule,
@@ -35,16 +37,16 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations'
             const isApiRequest = uri.startsWith(environment.API_HOST)
             const isWebSocketRequest = uri.startsWith(environment.GRAPHQL_WS_URI)
             return isApiRequest || isWebSocketRequest
-          }
-        }]
-      }
+          },
+        }],
+      },
     }),
     GraphQLModule,
-    BrowserAnimationsModule
+    BrowserAnimationsModule,
   ],
   providers: [
-    { provide: HTTP_INTERCEPTORS, useClass: AuthHttpInterceptor, multi: true }
+    { provide: HTTP_INTERCEPTORS, useClass: AuthHttpInterceptor, multi: true },
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [ AppComponent ],
 })
 export class AppModule { }

@@ -13,22 +13,36 @@ html {
   font-size: 16px;
 }
 
-/* tablets */
+/* tablets & phones in landscape */
 @media only screen and (min-width: 760px) {
   html {
-    font-size: 18px;
+    font-size: 14px;
   }
 }
 
 /* laptops */
-@media only screen and (min-width: 1080px) {
+@media only screen and (min-width: 1024px) {
   html {
-    font-size: 20px;
+    font-size: 16px;
   }
 }
 
 /* 2k+ screens */
 @media only screen and (min-width: 1440px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+/* slightly > 2k+ screens */
+@media only screen and (min-width: 1880px) {
+  html {
+    font-size: 20px;
+  }
+}
+
+/* 4k+ screens */
+@media only screen and (min-width: 2560px) {
   html {
     font-size: 22px;
   }

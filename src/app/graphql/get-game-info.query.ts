@@ -124,25 +124,7 @@ export const DEFAULT_PHOTO_URI = '/assets/default-profile-photo.png'
 export function mapGameInfoPointers(): OperatorFunction<GetGameInfoQueryResult, GameInfo> {
   return map((gameInfo: GetGameInfoQueryResult) => {
     const players = gameInfo.gameById.players.map(_player => {
-      let photo: Player['photo']
-      if (_player.photo) {
-        photo = {
-          ..._player.photo,
-          // uri is 'players/:id/photo' but should be 'http://apidomain/players/:id/photo
-          // this is done to allow using TEST vs DEV vs PROD servers
-          uri: `${environment.API_HOST}/${_player.photo.uri}`,
-        }
-      } else {
-        photo = {
-          _id: null,
-          uri: DEFAULT_PHOTO_URI,
-          alt: 'Default profile photo',
-        }
-      }
-      return {
-        ..._player,
-        photo,
-      }
+      return mapPlayerPhoto(_player)
     })
     const playerById = new Map(
       players.map(player => [ player._id, player ]),
@@ -172,4 +154,27 @@ export function mapGameInfoPointers(): OperatorFunction<GetGameInfoQueryResult, 
     }
     return mappedGameInfo
   })
+}
+
+type PlayerPhotoLike = {photo: Player['photo']}
+export function mapPlayerPhoto<T extends Partial<PlayerPhotoLike>>(player: T): T & PlayerPhotoLike {
+  let photo: Player['photo']
+  if (player.photo) {
+    photo = {
+      ...player.photo,
+      // uri is 'players/:id/photo' but should be 'http://apidomain/players/:id/photo
+      // this is done to allow using TEST vs DEV vs PROD servers
+      uri: `${environment.API_HOST}/${player.photo.uri}`,
+    }
+  } else {
+    photo = {
+      _id: null,
+      uri: DEFAULT_PHOTO_URI,
+      alt: 'Default profile photo',
+    }
+  }
+  return {
+    ...player,
+    photo,
+  }
 }

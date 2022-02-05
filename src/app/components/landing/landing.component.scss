@@ -1,1 +1,85 @@
 @use "../../../styles/host";
+@use "../../../styles/vars";
+
+.content {
+  padding: 0;
+}
+
+.fold {
+  display: flex;
+  padding: 1rem 2rem 4rem;
+  flex-direction: column;
+  align-items: center;
+  background-image: url("../../../assets/landing_fold_bg.png");
+  background-size: cover;
+  background-position: center;
+
+  img {
+    width: 35.875rem;
+    margin-bottom: 2rem;
+    object-fit: contain;
+    object-position: center;
+  }
+
+  .tagline {
+    margin-bottom: 1rem;
+    font-weight: 600;
+  }
+
+  app-login-button {
+    font-weight: 600;
+
+    button {
+      background-color: vars.$color-white;
+    }
+  }
+}
+
+.news,
+.newsletter {
+  padding: vars.$page-content-vert-padding vars.$page-content-horz-padding;
+}
+
+.news {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #d50866;
+
+  app-carousel {
+    margin-top: 1rem;
+  }
+}
+
+.newsletter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #fa9bc7;
+
+  form {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    text-align: center;
+
+    button {
+      color: #fa9bc7;
+      background-color: vars.$color-white;
+    }
+
+    input {
+      border-radius: 2px;
+      margin-bottom: 0.5rem;
+      background-color: vars.$color-white;
+      color: vars.$color-inverse;
+    }
+
+    input.ng-dirty.invalid-input {
+      background-color: vars.$color-red;
+    }
+  }
+
+  h3 {
+    text-align: center;
+  }
+}
