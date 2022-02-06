@@ -4,9 +4,8 @@ import { Apollo, QueryRef } from 'apollo-angular'
 import { combineLatest, from, Observable, of, ReplaySubject } from 'rxjs'
 import { filter, map, shareReplay, switchMap, take, tap } from 'rxjs/operators'
 import { getGameInfo, GetGameInfoQueryResult, GetGameInfoQueryVariables, mapGameInfoPointers, GameInfo, Player } from 'src/app/graphql/get-game-info.query'
+import { Account, getMyAccount } from 'src/app/graphql/get-my-account.query'
 import { stopGame } from 'src/app/graphql/stop-game.mutation'
-import { Account } from 'src/app/models/account'
-import { ApiService } from 'src/app/services/api.service'
 import { PopupService } from 'src/app/services/popup.service'
 import { environment } from 'src/environments/environment'
 
@@ -47,13 +46,14 @@ export class RoomComponent implements OnInit {
   constructor(
     private activatedRoute: ActivatedRoute,
     private apollo: Apollo,
-    private apiService: ApiService,
     private popupService: PopupService,
     private router: Router,
   ) { }
 
   ngOnInit() {
-    this.account$ = this.apiService.getAccountId().pipe(
+    this.account$ = getMyAccount(this.apollo, 60 * 1000).valueChanges.pipe(
+      filter(({ loading }) => !loading),
+      map(({ data }) => data.myAccount),
       shareReplay({ bufferSize: 1, refCount: true }),
     )
     this.activatedRoute.parent.params.subscribe(async params => {

@@ -1,0 +1,60 @@
+@use "../../../../styles/host";
+@use "../../../../styles/vars";
+
+:host {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  .carousel {
+    display: flex;
+    padding: 2rem 1rem;
+    justify-content: space-around;
+    align-items: center;
+
+    i {
+      font-size: 2rem !important;
+      cursor: pointer;
+    }
+
+    i.left {
+      margin-right: 2.5rem;
+    }
+
+    i.right {
+      margin-left: 2.5rem;
+    }
+
+    i.disabled {
+      color: vars.$color-secondary;
+      cursor: default;
+    }
+
+    .carousel-dot {
+      width: 8rem;
+      height: 8rem;
+      border-radius: 100%;
+      background-color: vars.$bg-lighter;
+
+      + .carousel-dot {
+        margin-left: 2.5rem;
+      }
+    }
+
+    .carousel-dot.focused {
+      width: 10rem;
+      height: 10rem;
+      background-color: vars.$color-white;
+    }
+  }
+
+  .headline {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    .read-more {
+      text-decoration: underline;
+    }
+  }
+}

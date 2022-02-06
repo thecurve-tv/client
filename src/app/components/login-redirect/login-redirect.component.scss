@@ -1,0 +1,26 @@
+@use "../../../styles/host";
+@use "../../../styles/vars";
+
+.try-again {
+  text-decoration: underline !important;
+  cursor: pointer;
+}
+
+.bottom {
+  display: flex;
+  padding: 0.25rem 2rem;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+
+  img {
+    width: 3.5rem;
+    height: 3.25rem;
+  }
+
+  .remarks {
+    font-size: 0.875rem;
+    text-align: right;
+    color: vars.$color-secondary;
+  }
+}

@@ -6,8 +6,8 @@ import { Observable, zip } from 'rxjs'
 import { filter, map, switchMap, take, tap } from 'rxjs/operators'
 import { ChatMessage, ChatMessagesSubscriptionResult, listenToChatMessages } from 'src/app/graphql/chat-messages.subscription'
 import { GameInfo, Player } from 'src/app/graphql/get-game-info.query'
+import { Account } from 'src/app/graphql/get-my-account.query'
 import { sendChatMessage } from 'src/app/graphql/send-chat-message.mutation'
-import { Account } from 'src/app/models/account'
 import { PopupService } from 'src/app/services/popup.service'
 import { Frame } from '../room/room.component'
 
@@ -18,7 +18,7 @@ interface PopulatedChatMessage extends ChatMessage {
 @Component({
   selector: 'app-chat',
   templateUrl: './chat.component.html',
-  styleUrls: ['./chat.component.scss']
+  styleUrls: [ './chat.component.scss' ],
 })
 export class ChatComponent implements OnInit {
   private _messages: PopulatedChatMessage[]
@@ -30,7 +30,7 @@ export class ChatComponent implements OnInit {
 
   constructor(
     private apollo: Apollo,
-    private popupService: PopupService
+    private popupService: PopupService,
   ) { }
 
   async ngOnInit(): Promise<void> {
@@ -43,16 +43,16 @@ export class ChatComponent implements OnInit {
       switchMap(result => {
         return this.gameInfo$.pipe(
           take(1),
-          map(gameInfo => <[GameInfo, FetchResult<ChatMessagesSubscriptionResult>]>[gameInfo, result])
+          map(gameInfo => <[GameInfo, FetchResult<ChatMessagesSubscriptionResult>]>[ gameInfo, result ]),
         )
       }),
-      map(([gameInfo, { data }]) => {
+      map(([ gameInfo, { data }]) => {
         this._messages.push({
           ...data.chatMessages,
-          fromPlayer: gameInfo.playerById.get(data.chatMessages.fromPlayerId)
+          fromPlayer: gameInfo.playerById.get(data.chatMessages.fromPlayerId),
         })
         return this._messages
-      })
+      }),
     )
     await this.setChatMessageForm()
   }
@@ -60,12 +60,12 @@ export class ChatComponent implements OnInit {
   private async setChatMessageForm(): Promise<void> {
     await zip(this.account$, this.gameInfo$).pipe(
       take(1),
-      filter(([account, gameInfo]) => account._id != gameInfo.hostAccount._id),
+      filter(([ account, gameInfo ]) => account._id != gameInfo.hostAccount._id),
       tap(_ => {
         this.chatMessageForm = new FormGroup({
-          message: new FormControl('', [Validators.required, Validators.minLength(1), Validators.maxLength(500)])
+          message: new FormControl('', [ Validators.required, Validators.minLength(1), Validators.maxLength(500) ]),
         })
-      })
+      }),
     ).toPromise()
   }
 
@@ -88,10 +88,10 @@ export class ChatComponent implements OnInit {
         switchMap(frame => {
           return sendChatMessage(this.apollo, {
             chatId: frame.docId,
-            message
+            message,
           })
-        })
-      )
+        }),
+      ),
     ).toPromise()
     chatMessageControl.setValue('')
   }

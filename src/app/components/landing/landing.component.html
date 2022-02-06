@@ -1,7 +1,28 @@
 <div class="content">
-  <p>landing works!</p>
-
-  <h2>Login</h2>
-
-  <app-login-button></app-login-button>
+  <div class="fold">
+    <img src="assets/site-logo.png" alt="TheCurve logo">
+    <div class="tagline">
+      Insert tag-line here.
+    </div>
+    <app-login-button></app-login-button>
+  </div>
+  <div class="news">
+    <h1>Newest News</h1>
+    <app-carousel [carousel$]="news$" [onClickReadMore]="expandFocusedNews"></app-carousel>
+  </div>
+  <div class="newsletter">
+    <h3>Keep me informed about new features and Curve news:</h3>
+    <form [formGroup]="newsletterForm" (ngSubmit)="submitNewsletterForm()">
+      <input type="email" formControlName="email" placeholder="Enter your email"
+        [class]="{'invalid-input': !newsletterForm.get('email').valid}">
+      <br />
+      <button class="btn-primary" type="submit" [disabled]="!newsletterForm.valid">
+        SUBSCRIBE
+      </button>
+    </form>
+    <p>
+      You can unsubscribe from this newsletter at any time by clicking the link in the footer of the email.
+    </p>
+  </div>
 </div>
+<app-footer></app-footer>

@@ -1,0 +1,10 @@
+@use "../../../../styles/host";
+@use "../../../../styles/vars";
+
+:host {
+  align-items: center;
+}
+
+button {
+  background-color: vars.$color-white;
+}

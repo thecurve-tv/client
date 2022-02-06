@@ -1,0 +1,16 @@
+<div class="carousel" *ngIf="(carousel$ | async) as carousel">
+  <i class="material-icons left" [ngClass]="{'disabled': carousel.length <= 3}">chevron_left</i>
+  <div class="carousel-dot" *ngFor="let carouselDot of carousel; index as index" [ngClass]="{'focused': index == 1}">
+  </div>
+  <i class="material-icons right" [ngClass]="{'disabled': carousel.length <= 3}">chevron_right</i>
+</div>
+<div class="headline" *ngIf="(focusedCarouselDot$ | async) as carouselDot">
+  <h2>{{carouselDot.headline}}</h2>
+  <p *ngIf="carouselDot.preview">
+    {{carouselDot.preview}}
+    &nbsp;
+    <span class="read-more" *ngIf="onClickReadMore" (click)="onClickReadMore()">
+      Read more.
+    </span>
+  </p>
+</div>
